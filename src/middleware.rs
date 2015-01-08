@@ -1,8 +1,3 @@
-#![feature(globs)]
-extern crate iron;
-extern crate handlebars;
-extern crate "rustc-serialize" as serialize;
-
 use std::str::FromStr;
 use std::io::{File};
 use std::collections::BTreeMap;
@@ -11,6 +6,8 @@ use iron::prelude::*;
 use iron::{AfterMiddleware, ChainBuilder, typemap, Response};
 use iron::status;
 use iron::headers;
+
+use glob::glob;
 
 use handlebars::Handlebars;
 use serialize::json::{ToJson, Json};
@@ -43,13 +40,25 @@ impl<'a> Modifier<Response> for Template<'a> {
 impl typemap::Assoc<Template<'a>> for HandlebarsRenderer {}
 
 impl HandlebarsRenderer {
-	  fn new(dir: &'static str, suffix: &'static str) -> HandlebarsRenderer {
+	  fn new(prefix: &str, suffix: &str) -> HandlebarsRenderer {
 		    let mut r = Handlebars::new();
 
-		    let t = r.register_template_string("index", File::open(&Path::new("./examples/index.hbs")).unwrap().read_to_string().unwrap());
+        let mut pattern = String::new();
+        pattern.push_str(prefix);
+        pattern.push_str("**/*");
+        pattern.push_str(suffix);
 
-        if t.is_err() {
-            panic!("Failed to create template.");
+        for path in glob(pattern.as_slice()) {
+            let disp = path.display();
+            let t = r.register_template_string(
+                disp.slice(prefix.len(), disp.len()-suffix.len()),
+                File::open(&path).ok()
+                    .expect(format!("Failed to open file {}", disp))
+                    .read_to_string().unwrap());
+
+            if t.is_err() {
+                panic!("Failed to create template.");
+            }
         }
 
 		    HandlebarsRenderer {
