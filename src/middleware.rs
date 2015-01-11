@@ -14,7 +14,7 @@ use serialize::json::{ToJson, Json};
 use modifier::Modifier;
 
 struct HandlebarsRenderer {
-	  registry: Handlebars
+    registry: Handlebars
 }
 
 struct Template<'a> {
@@ -40,8 +40,8 @@ impl<'a> Modifier<Response> for Template<'a> {
 impl typemap::Assoc<Template<'a>> for HandlebarsRenderer {}
 
 impl HandlebarsRenderer {
-	  fn new(prefix: &str, suffix: &str) -> HandlebarsRenderer {
-		    let mut r = Handlebars::new();
+    fn new(prefix: &str, suffix: &str) -> HandlebarsRenderer {
+        let mut r = Handlebars::new();
 
         let mut pattern = String::new();
         pattern.push_str(prefix);
@@ -61,19 +61,19 @@ impl HandlebarsRenderer {
             }
         }
 
-		    HandlebarsRenderer {
-			      registry: r
-		    }
-	  }
+        HandlebarsRenderer {
+            registry: r
+        }
+    }
 }
 
 impl AfterMiddleware for HandlebarsRenderer {
-	  fn after(&self, _: &mut Request, resp: &mut Response) -> IronResult<()> {
+    fn after(&self, _: &mut Request, resp: &mut Response) -> IronResult<()> {
         let page = match resp.extensions.get::<HandlebarsRenderer, Template<'a>>() {
             Some(h) => {
                 let name = h.name;
                 let value = &h.value;
-		            let page = self.registry.render(name, value).unwrap();
+                let page = self.registry.render(name, value).unwrap();
                 Some(page)
             },
             None => {
@@ -91,10 +91,10 @@ impl AfterMiddleware for HandlebarsRenderer {
 }
 
 fn hello_world(_: &mut Request) -> IronResult<Response> {
-	  let mut resp = Response::new();
+    let mut resp = Response::new();
 
-	  let mut data = BTreeMap::new();
-	  data.insert("title".to_string(), "Handlebars on Iron".to_json());
+    let mut data = BTreeMap::new();
+    data.insert("title".to_string(), "Handlebars on Iron".to_json());
 
     resp.set(Template::new("index", data.to_json()));
     Ok(resp)
@@ -103,8 +103,8 @@ fn hello_world(_: &mut Request) -> IronResult<Response> {
 
 /*
 fn main() {
-	  let mut chain = ChainBuilder::new(hello_world);
-    chain.link_after(HandlebarsRenderer::new());
-    Iron::new(chain).listen("localhost:3000").unwrap();
+let mut chain = ChainBuilder::new(hello_world);
+chain.link_after(HandlebarsRenderer::new());
+Iron::new(chain).listen("localhost:3000").unwrap();
 }
 */
