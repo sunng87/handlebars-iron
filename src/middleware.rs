@@ -3,7 +3,8 @@ use std::io::{File};
 use std::collections::BTreeMap;
 
 use iron::prelude::*;
-use iron::{AfterMiddleware, ChainBuilder, typemap, Response};
+use iron::{AfterMiddleware, ChainBuilder, typemap};
+use iron::modifier::Modifier;
 use iron::status;
 use iron::headers;
 
@@ -11,33 +12,34 @@ use glob::glob;
 
 use handlebars::Handlebars;
 use serialize::json::{ToJson, Json};
-use modifier::Modifier;
 
 struct HandlebarsRenderer {
     registry: Handlebars
 }
 
-struct Template<'a> {
-    name: &'a str,
+struct Template {
+    name: String,
     value: Json
 }
 
-impl<'a> Template<'a> {
-    pub fn new(name: &'a str, value: Json) -> Template<'a>{
-        Template<'a> {
+impl Template {
+    pub fn new(name: String, value: Json) -> Template{
+        Template {
             name: name,
             value: value
         }
     }
 }
 
-impl<'a> Modifier<Response> for Template<'a> {
+impl Modifier<Response> for Template {
     fn modify(self, resp: &mut Response) {
-        resp.extensions.insert::<HandlebarsRenderer, Template<'a>>(self);
+        resp.extensions.insert::<HandlebarsRenderer>(self);
     }
 }
 
-impl typemap::Assoc<Template<'a>> for HandlebarsRenderer {}
+impl typemap::Key for HandlebarsRenderer {
+    type Value = Template;
+}
 
 impl HandlebarsRenderer {
     fn new(prefix: &str, suffix: &str) -> HandlebarsRenderer {
@@ -53,7 +55,7 @@ impl HandlebarsRenderer {
             let t = r.register_template_string(
                 disp.slice(prefix.len(), disp.len()-suffix.len()),
                 File::open(&path).ok()
-                    .expect(format!("Failed to open file {}", disp))
+                    .expect(format!("Failed to open file {}", disp).as_slice())
                     .read_to_string().unwrap());
 
             if t.is_err() {
@@ -69,11 +71,11 @@ impl HandlebarsRenderer {
 
 impl AfterMiddleware for HandlebarsRenderer {
     fn after(&self, _: &mut Request, resp: &mut Response) -> IronResult<()> {
-        let page = match resp.extensions.get::<HandlebarsRenderer, Template<'a>>() {
+        let page = match resp.extensions.get::<HandlebarsRenderer>() {
             Some(h) => {
                 let name = h.name;
                 let value = &h.value;
-                let page = self.registry.render(name, value).unwrap();
+                let page = self.registry.render(name.as_slice(), value).unwrap();
                 Some(page)
             },
             None => {
@@ -96,7 +98,7 @@ fn hello_world(_: &mut Request) -> IronResult<Response> {
     let mut data = BTreeMap::new();
     data.insert("title".to_string(), "Handlebars on Iron".to_json());
 
-    resp.set(Template::new("index", data.to_json()));
+    resp.set(Template::new("index".to_string(), data.to_json()));
     Ok(resp)
 }
 
