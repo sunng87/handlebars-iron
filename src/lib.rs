@@ -1,3 +1,5 @@
+#![allow(unstable)]
+#![unstable]
 
 extern crate iron;
 extern crate "rustc-serialize" as serialize;
@@ -5,8 +7,7 @@ extern crate handlebars;
 extern crate modifier;
 extern crate glob;
 
-mod middleware;
+pub use self::middleware::Template;
+pub use self::middleware::HandlebarsEngine;
 
-#[test]
-fn it_works() {
-}
+mod middleware;

@@ -3,7 +3,7 @@ use std::io::{File};
 use std::collections::BTreeMap;
 
 use iron::prelude::*;
-use iron::{AfterMiddleware, ChainBuilder, typemap};
+use iron::{AfterMiddleware, typemap};
 use iron::modifier::Modifier;
 use iron::status;
 use iron::headers;
@@ -13,11 +13,11 @@ use glob::glob;
 use handlebars::Handlebars;
 use serialize::json::{ToJson, Json};
 
-struct HandlebarsRenderer {
+pub struct HandlebarsEngine {
     registry: Handlebars
 }
 
-struct Template {
+pub struct Template {
     name: String,
     value: Json
 }
@@ -33,16 +33,16 @@ impl Template {
 
 impl Modifier<Response> for Template {
     fn modify(self, resp: &mut Response) {
-        resp.extensions.insert::<HandlebarsRenderer>(self);
+        resp.extensions.insert::<HandlebarsEngine>(self);
     }
 }
 
-impl typemap::Key for HandlebarsRenderer {
+impl typemap::Key for HandlebarsEngine {
     type Value = Template;
 }
 
-impl HandlebarsRenderer {
-    fn new(prefix: &str, suffix: &str) -> HandlebarsRenderer {
+impl HandlebarsEngine {
+    fn new(prefix: &str, suffix: &str) -> HandlebarsEngine {
         let mut r = Handlebars::new();
 
         let mut pattern = String::new();
@@ -51,7 +51,7 @@ impl HandlebarsRenderer {
         pattern.push_str(suffix);
 
         for path in glob(pattern.as_slice()) {
-            let disp = path.display();
+            let disp = path.as_str().unwrap();
             let t = r.register_template_string(
                 disp.slice(prefix.len(), disp.len()-suffix.len()),
                 File::open(&path).ok()
@@ -63,17 +63,17 @@ impl HandlebarsRenderer {
             }
         }
 
-        HandlebarsRenderer {
+        HandlebarsEngine {
             registry: r
         }
     }
 }
 
-impl AfterMiddleware for HandlebarsRenderer {
+impl AfterMiddleware for HandlebarsEngine {
     fn after(&self, _: &mut Request, resp: &mut Response) -> IronResult<()> {
-        let page = match resp.extensions.get::<HandlebarsRenderer>() {
+        let page = match resp.extensions.get::<HandlebarsEngine>() {
             Some(h) => {
-                let name = h.name;
+                let name = &h.name;
                 let value = &h.value;
                 let page = self.registry.render(name.as_slice(), value).unwrap();
                 Some(page)
@@ -98,15 +98,14 @@ fn hello_world(_: &mut Request) -> IronResult<Response> {
     let mut data = BTreeMap::new();
     data.insert("title".to_string(), "Handlebars on Iron".to_json());
 
-    resp.set(Template::new("index".to_string(), data.to_json()));
-    Ok(resp)
+    Ok(resp.set(Template::new("index".to_string(), data.to_json())))
 }
 
 
 /*
 fn main() {
 let mut chain = ChainBuilder::new(hello_world);
-chain.link_after(HandlebarsRenderer::new());
+chain.link_after(HandlebarsEngine::new());
 Iron::new(chain).listen("localhost:3000").unwrap();
 }
 */
