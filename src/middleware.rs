@@ -1,5 +1,6 @@
 use std::str::FromStr;
 use std::io::{File};
+use std::os;
 
 use iron::prelude::*;
 use iron::{AfterMiddleware, typemap};
@@ -44,15 +45,19 @@ impl HandlebarsEngine {
     pub fn new(prefix: &str, suffix: &str) -> HandlebarsEngine {
         let mut r = Handlebars::new();
 
+        let prefix_path = Path::new(prefix);
+        let abs_prefix_path = os::make_absolute(&prefix_path).unwrap();
+        let prefix_path_str = abs_prefix_path.as_str().unwrap();
+
         let mut pattern = String::new();
-        pattern.push_str(prefix);
-        pattern.push_str("**/*");
+        pattern.push_str(prefix_path_str);
+        pattern.push_str("/**/*");
         pattern.push_str(suffix);
 
         for path in glob(pattern.as_slice()) {
             let disp = path.as_str().unwrap();
             let t = r.register_template_string(
-                disp.slice(prefix.len(), disp.len()-suffix.len()),
+                disp.slice(prefix_path_str.len()+1, disp.len()-suffix.len()),
                 File::open(&path).ok()
                     .expect(format!("Failed to open file {}", disp).as_slice())
                     .read_to_string().unwrap());
