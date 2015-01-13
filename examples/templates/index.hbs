@@ -1,0 +1,16 @@
+<html>
+  <head>
+    <title>中超联赛 {{year}}</title>
+  </head>
+  <body>
+    <h1>CSL {{year}}</h1>
+    <ul>
+    {{#each teams}}
+      <li class="{{#if @first}}champion{{/if}}">
+      {{log @index}}
+      <b>{{name}}</b>: {{format score}}
+      </li>
+    {{/each}}
+    </ul>
+  </body>
+</html>

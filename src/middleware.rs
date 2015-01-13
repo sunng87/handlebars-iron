@@ -123,13 +123,3 @@ mod test {
         }
     }
 }
-
-
-
-/*
-fn main() {
-let mut chain = ChainBuilder::new(hello_world);
-chain.link_after(HandlebarsEngine::new());
-Iron::new(chain).listen("localhost:3000").unwrap();
-}
-*/
