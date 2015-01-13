@@ -1,6 +1,5 @@
 use std::str::FromStr;
 use std::io::{File};
-use std::collections::BTreeMap;
 
 use iron::prelude::*;
 use iron::{AfterMiddleware, typemap};
@@ -23,10 +22,10 @@ pub struct Template {
 }
 
 impl Template {
-    pub fn new(name: String, value: Json) -> Template{
+    pub fn new<T: ToJson>(name: &str, value: T) -> Template {
         Template {
-            name: name,
-            value: value
+            name: name.to_string(),
+            value: value.to_json()
         }
     }
 }
@@ -42,7 +41,7 @@ impl typemap::Key for HandlebarsEngine {
 }
 
 impl HandlebarsEngine {
-    fn new(prefix: &str, suffix: &str) -> HandlebarsEngine {
+    pub fn new(prefix: &str, suffix: &str) -> HandlebarsEngine {
         let mut r = Handlebars::new();
 
         let mut pattern = String::new();
@@ -92,14 +91,39 @@ impl AfterMiddleware for HandlebarsEngine {
     }
 }
 
-fn hello_world(_: &mut Request) -> IronResult<Response> {
-    let mut resp = Response::new();
+#[cfg(test)]
+mod test {
+    use serialize::json::ToJson;
+    use std::collections::BTreeMap;
+    use iron::prelude::*;
+    use middleware::*;
 
-    let mut data = BTreeMap::new();
-    data.insert("title".to_string(), "Handlebars on Iron".to_json());
+    fn hello_world() -> IronResult<Response> {
+        let resp = Response::new();
 
-    Ok(resp.set(Template::new("index".to_string(), data.to_json())))
+        let mut data = BTreeMap::new();
+        data.insert("title".to_string(), "Handlebars on Iron".to_json());
+
+        Ok(resp.set(Template::new("index", data)))
+    }
+
+    #[test]
+    fn test_resp_set() {
+        let resp = hello_world().ok().expect("response expected");
+
+        match resp.extensions.get::<HandlebarsEngine>() {
+            Some(h) => {
+                assert_eq!(h.name, "index".to_string());
+                assert_eq!(h.value.as_object().unwrap()
+                           .get(&"title".to_string()).unwrap()
+                           .as_string().unwrap(),
+                           "Handlebars on Iron");
+            },
+            None => panic!("template expected")
+        }
+    }
 }
+
 
 
 /*
