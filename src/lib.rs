@@ -15,6 +15,8 @@
 //!
 //! We have implemented Modifier for `Template` on `Response`, so you can just use `response.set` to put set template into response and let it processed by our middleware.
 //!
+//! Also we made `Response` plugin for `Template` via `HandlebarsEngine`. So you can test your handler from a test case, and retrieve the `Template` you set into it by `response.get::<HandlebarsEngine>`.
+//!
 
 extern crate iron;
 extern crate "rustc-serialize" as serialize;

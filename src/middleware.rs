@@ -84,6 +84,7 @@ impl HandlebarsEngine {
 
 impl AfterMiddleware for HandlebarsEngine {
     fn after(&self, _: &mut Request, resp: &mut Response) -> IronResult<()> {
+        // internally we still extensions.get to avoid clone
         let page = match resp.extensions.get::<HandlebarsEngine>() {
             Some(h) => {
                 let name = &h.name;
@@ -125,6 +126,7 @@ mod test {
     fn test_resp_set() {
         let resp = hello_world().ok().expect("response expected");
 
+        // use response plugin to retrieve a cloned template for testing
         match resp.get::<HandlebarsEngine>() {
             Some(h) => {
                 assert_eq!(h.name, "index".to_string());
