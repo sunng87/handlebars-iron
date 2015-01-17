@@ -124,7 +124,7 @@ mod test {
 
     #[test]
     fn test_resp_set() {
-        let resp = hello_world().ok().expect("response expected");
+        let mut resp = hello_world().ok().expect("response expected");
 
         // use response plugin to retrieve a cloned template for testing
         match resp.get::<HandlebarsEngine>() {
