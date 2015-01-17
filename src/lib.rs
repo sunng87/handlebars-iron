@@ -20,6 +20,7 @@ extern crate iron;
 extern crate "rustc-serialize" as serialize;
 extern crate handlebars;
 extern crate modifier;
+extern crate plugin;
 extern crate glob;
 
 pub use self::middleware::Template;

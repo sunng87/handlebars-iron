@@ -5,6 +5,8 @@ use std::os;
 use iron::prelude::*;
 use iron::{AfterMiddleware, typemap};
 use iron::modifier::Modifier;
+use plugin::Phantom;
+use plugin::Plugin as PluginFor;
 use iron::status;
 use iron::headers;
 
@@ -17,6 +19,7 @@ pub struct HandlebarsEngine {
     registry: Handlebars
 }
 
+#[derive(Clone)]
 pub struct Template {
     name: String,
     value: Json
@@ -31,14 +34,20 @@ impl Template {
     }
 }
 
+impl typemap::Key for HandlebarsEngine {
+    type Value = Template;
+}
+
 impl Modifier<Response> for Template {
     fn modify(self, resp: &mut Response) {
         resp.extensions.insert::<HandlebarsEngine>(self);
     }
 }
 
-impl typemap::Key for HandlebarsEngine {
-    type Value = Template;
+impl PluginFor<Response> for HandlebarsEngine {
+    fn eval(resp: &mut Response, _: Phantom<HandlebarsEngine>) -> Option<Template> {
+        resp.extensions.get::<HandlebarsEngine>().cloned()
+    }
 }
 
 impl HandlebarsEngine {
@@ -116,7 +125,7 @@ mod test {
     fn test_resp_set() {
         let resp = hello_world().ok().expect("response expected");
 
-        match resp.extensions.get::<HandlebarsEngine>() {
+        match resp.get::<HandlebarsEngine>() {
             Some(h) => {
                 assert_eq!(h.name, "index".to_string());
                 assert_eq!(h.value.as_object().unwrap()
