@@ -40,6 +40,6 @@ fn hello_world(_: &mut Request) -> IronResult<Response> {
 
 fn main() {
     let mut chain = ChainBuilder::new(hello_world);
-    chain.link_after(HandlebarsEngine::new("./example/templates/", ".hbs"));
+    chain.link_after(HandlebarsEngine::new("./examples/templates/", ".hbs"));
     Iron::new(chain).listen("localhost:3000").unwrap();
 }
