@@ -2,7 +2,7 @@
 
 name = "handlebars-iron"
 version = "0.1.0"
-authors = ["Sun Ning <sunng@about.me>"]
+authors = ["Ning Sun <sunng@about.me>"]
 
 [dependencies]
 
