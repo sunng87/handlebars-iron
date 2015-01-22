@@ -99,7 +99,7 @@ impl AfterMiddleware for HandlebarsEngine {
 
         if page.is_some() {
             resp.headers.set(headers::ContentType(FromStr::from_str("text/html;charset=utf-8").unwrap()));
-            resp.set_mut(status::Ok).set_mut(page.unwrap());
+            resp.set_mut(page.unwrap());
         }
 
         Ok(())
