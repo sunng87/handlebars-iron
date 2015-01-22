@@ -24,10 +24,11 @@ Handlebars-rust, your data should impl `serialize::json::ToJson`.
 /// render data with "index" template
 /// that is "./examples/templates/index.hbs"
 fn hello_world(_: &mut Request) -> IronResult<Response> {
-    let resp = Response::new();
+    let mut resp = Response::new();
 
     let data = ...
-    Ok(resp.set(Template::new("index", data)))
+    resp.set_mut(Template::new("index", data)).set_mut(status:Ok);
+    Ok(resp)
 }
 ```
 
