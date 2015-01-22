@@ -34,7 +34,7 @@ fn hello_world(_: &mut Request) -> IronResult<Response> {
 Since this is simple library, you may run this
 [example](https://github.com/sunng87/handlebars-iron/blob/master/examples/server.rs)
 with `cargo run --example server`
-first, and  [documentation](https://sunng.info/handlebars-iron/)
+first, and  [documentation](http://sunng.info/handlebars-iron/)
 then.
 
 Since Rust and its ecosystem are still in early stage, this
