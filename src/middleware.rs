@@ -7,7 +7,6 @@ use iron::{AfterMiddleware, typemap};
 use iron::modifier::Modifier;
 use plugin::Phantom;
 use plugin::Plugin as PluginFor;
-use iron::status;
 use iron::headers;
 
 use glob::glob;
