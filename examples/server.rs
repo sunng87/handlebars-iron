@@ -5,7 +5,7 @@ extern crate "handlebars-iron" as hbs;
 extern crate "rustc-serialize" as serialize;
 
 use iron::prelude::*;
-use iron::ChainBuilder;
+use iron::{ChainBuilder, status};
 use hbs::{Template, HandlebarsEngine};
 use serialize::json::{ToJson, Json};
 use std::collections::BTreeMap;
@@ -32,10 +32,11 @@ fn make_data() -> BTreeMap<String, Json> {
 
 /// the handler
 fn hello_world(_: &mut Request) -> IronResult<Response> {
-    let resp = Response::new();
+    let mut resp = Response::new();
 
     let data = make_data();
-    Ok(resp.set(Template::new("index", data)))
+    resp.set_mut(Template::new("index", data)).set_mut(status::Ok);
+    Ok(resp)
 }
 
 fn main() {
