@@ -11,6 +11,8 @@ use iron::headers;
 
 use glob::glob;
 
+use hyper::header::ContentType;
+
 use handlebars::Handlebars;
 use serialize::json::{ToJson, Json};
 
@@ -97,7 +99,9 @@ impl AfterMiddleware for HandlebarsEngine {
         };
 
         if page.is_some() {
-            resp.headers.set(headers::ContentType(FromStr::from_str("text/html;charset=utf-8").unwrap()));
+            if !resp.headers.has::<ContentType>() {
+                resp.headers.set(headers::ContentType(FromStr::from_str("text/html;charset=utf-8").unwrap()));
+            }
             resp.set_mut(page.unwrap());
         }
 

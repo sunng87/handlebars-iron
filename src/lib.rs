@@ -24,6 +24,7 @@ extern crate handlebars;
 extern crate modifier;
 extern crate plugin;
 extern crate glob;
+extern crate hyper;
 
 pub use self::middleware::Template;
 pub use self::middleware::HandlebarsEngine;
