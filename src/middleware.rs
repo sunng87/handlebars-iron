@@ -64,16 +64,21 @@ impl HandlebarsEngine {
         pattern.push_str("/**/*");
         pattern.push_str(suffix);
 
-        for path in glob(pattern.as_slice()) {
-            let disp = path.as_str().unwrap();
-            let t = r.register_template_string(
-                disp.slice(prefix_path_str.len()+1, disp.len()-suffix.len()),
-                File::open(&path).ok()
-                    .expect(format!("Failed to open file {}", disp).as_slice())
-                    .read_to_string().unwrap());
+        for entry in glob(pattern.as_slice()).unwrap() {
+            match entry {
+                Ok(path) => {
+                    let disp = path.as_str().unwrap();
+                    let t = r.register_template_string(
+                        &disp[prefix_path_str.len()+1 .. disp.len()-suffix.len()],
+                        File::open(&path).ok()
+                            .expect(format!("Failed to open file {}", disp).as_slice())
+                            .read_to_string().unwrap());
 
-            if t.is_err() {
-                panic!("Failed to create template.");
+                    if t.is_err() {
+                        panic!("Failed to create template.");
+                    }
+                },
+                Err(_) => {}
             }
         }
 
@@ -90,8 +95,11 @@ impl AfterMiddleware for HandlebarsEngine {
             Some(h) => {
                 let name = &h.name;
                 let value = &h.value;
-                let page = self.registry.render(name.as_slice(), value).unwrap();
-                Some(page)
+                let rendered = self.registry.render(name.as_slice(), value);
+                match rendered {
+                    Ok(r) => Some(r),
+                    Err(_) => None
+                }
             },
             None => {
                 None
