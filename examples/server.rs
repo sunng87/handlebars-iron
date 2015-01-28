@@ -5,7 +5,7 @@ extern crate "handlebars-iron" as hbs;
 extern crate "rustc-serialize" as serialize;
 
 use iron::prelude::*;
-use iron::{ChainBuilder, status};
+use iron::{status};
 use hbs::{Template, HandlebarsEngine};
 use serialize::json::{ToJson, Json};
 use std::collections::BTreeMap;
@@ -40,7 +40,7 @@ fn hello_world(_: &mut Request) -> IronResult<Response> {
 }
 
 fn main() {
-    let mut chain = ChainBuilder::new(hello_world);
+    let mut chain = Chain::new(hello_world);
     chain.link_after(HandlebarsEngine::new("./examples/templates/", ".hbs"));
     Iron::new(chain).listen("localhost:3000").unwrap();
 }

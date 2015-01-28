@@ -89,7 +89,8 @@ impl HandlebarsEngine {
 }
 
 impl AfterMiddleware for HandlebarsEngine {
-    fn after(&self, _: &mut Request, resp: &mut Response) -> IronResult<()> {
+    fn after(&self, _: &mut Request, r: Response) -> IronResult<Response> {
+        let mut resp = r;
         // internally we still extensions.get to avoid clone
         let page = match resp.extensions.get::<HandlebarsEngine>() {
             Some(h) => {
@@ -113,7 +114,7 @@ impl AfterMiddleware for HandlebarsEngine {
             resp.set_mut(page.unwrap());
         }
 
-        Ok(())
+        Ok(resp)
     }
 }
 
