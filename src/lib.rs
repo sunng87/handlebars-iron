@@ -1,5 +1,4 @@
-#![allow(unstable)]
-#![unstable]
+#![feature(core, io, collections, path, os)]
 
 //! # Handlebars for Iron
 //!

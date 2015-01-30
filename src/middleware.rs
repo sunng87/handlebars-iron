@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use std::io::{File};
+use std::old_io::{File};
 use std::os;
 
 use iron::prelude::*;
