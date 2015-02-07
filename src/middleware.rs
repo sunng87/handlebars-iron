@@ -1,6 +1,6 @@
 use std::str::FromStr;
 use std::old_io::{File};
-use std::os;
+use std::env;
 
 use iron::prelude::*;
 use iron::{AfterMiddleware, typemap};
@@ -56,7 +56,11 @@ impl HandlebarsEngine {
         let mut r = Handlebars::new();
 
         let prefix_path = Path::new(prefix);
-        let abs_prefix_path = os::make_absolute(&prefix_path).unwrap();
+        let current_dir = env::current_dir();
+        if !current_dir.is_ok() {
+            panic!("failed to get current working directory");
+        }
+        let abs_prefix_path = current_dir.ok().unwrap().join(prefix_path);
         let prefix_path_str = abs_prefix_path.as_str().unwrap();
 
         let mut pattern = String::new();

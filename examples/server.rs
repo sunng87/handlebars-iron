@@ -1,4 +1,4 @@
-#![feature(collections)]
+#![feature(core)]
 
 extern crate iron;
 extern crate "handlebars-iron" as hbs;
