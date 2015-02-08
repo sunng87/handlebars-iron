@@ -17,7 +17,7 @@ use handlebars::Handlebars;
 use serialize::json::{ToJson, Json};
 
 pub struct HandlebarsEngine {
-    registry: Handlebars
+    registry: Box<Handlebars>
 }
 
 #[derive(Clone)]
@@ -87,7 +87,7 @@ impl HandlebarsEngine {
         }
 
         HandlebarsEngine {
-            registry: r
+            registry: Box::new(r)
         }
     }
 }
