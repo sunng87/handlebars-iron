@@ -5,7 +5,6 @@ use std::env;
 use iron::prelude::*;
 use iron::{AfterMiddleware, typemap};
 use iron::modifier::Modifier;
-use plugin::Phantom;
 use plugin::Plugin as PluginFor;
 use iron::headers;
 
@@ -46,8 +45,13 @@ impl Modifier<Response> for Template {
 }
 
 impl PluginFor<Response> for HandlebarsEngine {
-    fn eval(resp: &mut Response, _: Phantom<HandlebarsEngine>) -> Option<Template> {
-        resp.extensions.get::<HandlebarsEngine>().cloned()
+    type Error = ();
+
+    fn eval(resp: &mut Response) -> Result<Template, ()> {
+        match resp.extensions.get::<HandlebarsEngine>(){
+            Some(t) => Ok(t.clone()),
+            None => Err(())
+        }
     }
 }
 
@@ -97,7 +101,7 @@ impl AfterMiddleware for HandlebarsEngine {
         let mut resp = r;
         // internally we still extensions.get to avoid clone
         let page = match resp.extensions.get::<HandlebarsEngine>() {
-            Some(h) => {
+            Some(ref h) => {
                 let name = &h.name;
                 let value = &h.value;
                 let rendered = self.registry.render(name.as_slice(), value);
@@ -144,14 +148,14 @@ mod test {
 
         // use response plugin to retrieve a cloned template for testing
         match resp.get::<HandlebarsEngine>() {
-            Some(h) => {
+            Ok(h) => {
                 assert_eq!(h.name, "index".to_string());
                 assert_eq!(h.value.as_object().unwrap()
                            .get(&"title".to_string()).unwrap()
                            .as_string().unwrap(),
                            "Handlebars on Iron");
             },
-            None => panic!("template expected")
+            _ => panic!("template expected")
         }
     }
 }
