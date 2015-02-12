@@ -1,5 +1,3 @@
-#![feature(core)]
-
 extern crate iron;
 extern crate "handlebars-iron" as hbs;
 extern crate "rustc-serialize" as serialize;
