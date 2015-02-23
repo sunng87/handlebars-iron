@@ -1,6 +1,9 @@
 use std::str::FromStr;
-use std::old_io::{File};
+use std::fs::File;
+use std::path::{AsPath, Path};
+use std::io::prelude::*;
 use std::env;
+use std::result::Result;
 
 use iron::prelude::*;
 use iron::{AfterMiddleware, typemap};
@@ -59,34 +62,39 @@ impl HandlebarsEngine {
     pub fn new(prefix: &str, suffix: &str) -> HandlebarsEngine {
         let mut r = Handlebars::new();
 
-        let prefix_path = Path::new(prefix);
+        let mut prefix_slash = prefix.to_string();
+        let normalized_prefix = if prefix.ends_with("/") {
+            prefix_slash
+        } else {
+            prefix_slash.push('/');
+            prefix_slash
+        };
+        let prefix_path = Path::new(&normalized_prefix);
         let current_dir = env::current_dir();
         if !current_dir.is_ok() {
             panic!("failed to get current working directory");
         }
-        let abs_prefix_path = current_dir.ok().unwrap().join(prefix_path);
-        let prefix_path_str = abs_prefix_path.as_str().unwrap();
+        let prefix_path_buf = current_dir.unwrap().join(prefix_path);
+        let prefix_path = prefix_path_buf.as_path();
+        let prefix_path_str = prefix_path.to_str().unwrap();
 
         let mut pattern = String::new();
         pattern.push_str(prefix_path_str);
         pattern.push_str("/**/*");
         pattern.push_str(suffix);
 
-        for entry in glob(pattern.as_slice()).unwrap() {
-            match entry {
-                Ok(path) => {
-                    let disp = path.as_str().unwrap();
-                    let t = r.register_template_string(
-                        &disp[prefix_path_str.len()+1 .. disp.len()-suffix.len()],
-                        File::open(&path).ok()
-                            .expect(format!("Failed to open file {}", disp).as_slice())
-                            .read_to_string().unwrap());
+        for path in glob(pattern.as_slice()).unwrap().filter_map(Result::ok) {
+            let disp = path.to_str().unwrap();
+            let mut file = File::open(&path).ok()
+                .expect(format!("Failed to open file {}", disp).as_slice());
+            let mut buf = String::new();
+            file.read_to_string(&mut buf).ok()
+                .expect(format!("Failed to read file {}", disp).as_slice());
+            let t = r.register_template_string(
+                &disp[prefix_path_str.len() .. disp.len()-suffix.len()], buf);
 
-                    if t.is_err() {
-                        panic!("Failed to create template.");
-                    }
-                },
-                Err(_) => {}
+            if t.is_err() {
+                panic!("Failed to create template.");
             }
         }
 
