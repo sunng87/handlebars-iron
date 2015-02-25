@@ -1,5 +1,6 @@
 use std::str::FromStr;
-use std::old_io::{File};
+use std::fs::{File};
+use std::io::Read;
 use std::env;
 
 use iron::prelude::*;
@@ -75,12 +76,14 @@ impl HandlebarsEngine {
         for entry in glob(pattern.as_slice()).unwrap() {
             match entry {
                 Ok(path) => {
-                    let disp = path.as_str().unwrap();
+                    let disp = path.to_str().unwrap();
+                    let mut template = String::new();
+                    File::open(&path).ok()
+                        .expect(format!("Failed to open file {}", disp).as_slice())
+                        .read_to_string(&mut template).unwrap();
                     let t = r.register_template_string(
                         &disp[prefix_path_str.len()+1 .. disp.len()-suffix.len()],
-                        File::open(&path).ok()
-                            .expect(format!("Failed to open file {}", disp).as_slice())
-                            .read_to_string().unwrap());
+                        template);
 
                     if t.is_err() {
                         panic!("Failed to create template.");
