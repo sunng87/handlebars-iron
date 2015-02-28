@@ -1,6 +1,7 @@
 use std::str::FromStr;
 use std::fs::{File};
 use std::io::Read;
+use std::path::Path;
 use std::env;
 
 use iron::prelude::*;
@@ -66,7 +67,7 @@ impl HandlebarsEngine {
             panic!("failed to get current working directory");
         }
         let abs_prefix_path = current_dir.ok().unwrap().join(prefix_path);
-        let prefix_path_str = abs_prefix_path.as_str().unwrap();
+        let prefix_path_str = abs_prefix_path.to_str().unwrap();
 
         let mut pattern = String::new();
         pattern.push_str(prefix_path_str);
