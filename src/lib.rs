@@ -1,4 +1,4 @@
-#![feature(core, io, path, fs)]
+#![feature(core, io, path)]
 
 //! # Handlebars for Iron
 //!
