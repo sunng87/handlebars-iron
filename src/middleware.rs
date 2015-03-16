@@ -70,6 +70,9 @@ impl HandlebarsEngine {
             prefix_slash
         };
         let prefix_path = Path::new(&normalized_prefix);
+        if ! prefix_path.exists() {
+            panic!("Prefix path doesn't exist.");
+        }
         let current_dir = env::current_dir();
         if !current_dir.is_ok() {
             panic!("failed to get current working directory");
