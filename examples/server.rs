@@ -40,5 +40,6 @@ fn hello_world(_: &mut Request) -> IronResult<Response> {
 fn main() {
     let mut chain = Chain::new(hello_world);
     chain.link_after(HandlebarsEngine::new("./examples/templates/", ".hbs"));
+    println!("Server running at http://localhost:3000/");
     Iron::new(chain).http("localhost:3000").unwrap();
 }
