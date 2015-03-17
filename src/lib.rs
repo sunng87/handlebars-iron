@@ -1,4 +1,4 @@
-#![feature(core, std_misc, path_ext)]
+#![feature(core, fs_walk, path_ext)]
 
 //! # Handlebars for Iron
 //!
@@ -22,7 +22,6 @@ extern crate "rustc-serialize" as serialize;
 extern crate handlebars;
 extern crate modifier;
 extern crate plugin;
-extern crate glob;
 extern crate hyper;
 
 pub use self::middleware::Template;

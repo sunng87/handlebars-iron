@@ -1,8 +1,7 @@
 use std::str::FromStr;
-use std::fs::File;
-use std::path::{AsPath, Path};
+use std::fs::{File, walk_dir};
+use std::path::Path;
 use std::io::prelude::*;
-use std::env;
 use std::result::Result;
 
 use iron::prelude::*;
@@ -10,8 +9,6 @@ use iron::{AfterMiddleware, typemap};
 use iron::modifier::Modifier;
 use plugin::Plugin as PluginFor;
 use iron::headers;
-
-use glob::glob;
 
 use hyper::header::ContentType;
 
@@ -73,31 +70,26 @@ impl HandlebarsEngine {
         if ! prefix_path.exists() {
             panic!("Prefix path doesn't exist.");
         }
-        let current_dir = env::current_dir();
-        if !current_dir.is_ok() {
-            panic!("failed to get current working directory");
+
+        let walker = walk_dir(prefix_path);
+        if !walker.is_ok() {
+            panic!("Failed to list directory.");
         }
-        let prefix_path_buf = current_dir.unwrap().join(prefix_path);
-        let prefix_path = prefix_path_buf.as_path();
-        let prefix_path_str = prefix_path.to_str().unwrap();
-
-        let mut pattern = String::new();
-        pattern.push_str(prefix_path_str);
-        pattern.push_str("/**/*");
-        pattern.push_str(suffix);
-
-        for path in glob(pattern.as_slice()).unwrap().filter_map(Result::ok) {
+        for p in walker.ok().unwrap().filter_map(Result::ok) {
+            let path = p.path();
             let disp = path.to_str().unwrap();
-            let mut file = File::open(&path).ok()
-                .expect(format!("Failed to open file {}", disp).as_slice());
-            let mut buf = String::new();
-            file.read_to_string(&mut buf).ok()
-                .expect(format!("Failed to read file {}", disp).as_slice());
-            let t = r.register_template_string(
-                &disp[prefix_path_str.len() .. disp.len()-suffix.len()], buf);
+            if disp.ends_with(suffix) {
+                let mut file = File::open(&path).ok()
+                    .expect(format!("Failed to open file {}", disp).as_slice());
+                let mut buf = String::new();
+                file.read_to_string(&mut buf).ok()
+                    .expect(format!("Failed to read file {}", disp).as_slice());
 
-            if t.is_err() {
-                panic!("Failed to create template.");
+                let t = r.register_template_string(
+                    &disp[normalized_prefix.len() .. disp.len()-suffix.len()], buf);
+                if t.is_err() {
+                    panic!("Failed to create template.");
+                }
             }
         }
 
