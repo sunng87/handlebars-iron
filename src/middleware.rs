@@ -3,6 +3,7 @@ use std::fs::{File, walk_dir};
 use std::path::Path;
 use std::io::prelude::*;
 use std::result::Result;
+use std::env;
 
 use iron::prelude::*;
 use iron::{AfterMiddleware, typemap};
@@ -68,7 +69,12 @@ impl HandlebarsEngine {
         };
         let prefix_path = Path::new(&normalized_prefix);
         if ! prefix_path.exists() {
-            panic!("Prefix path doesn't exist.");
+            let abs_prefix_path = if prefix_path.is_relative() {
+                 let mut p = env::current_dir().ok().unwrap();
+                 p.push(prefix_path);
+                 p.iter().collect() // normalization
+            } else { prefix_path.to_path_buf() };
+            panic!("Prefix path '{}' doesn't exist.", abs_prefix_path.display());
         }
 
         let walker = walk_dir(prefix_path);
