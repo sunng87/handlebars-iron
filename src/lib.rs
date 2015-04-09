@@ -1,4 +1,4 @@
-#![feature(core, fs_walk, path_ext)]
+#![feature(fs_walk, path_ext)]
 
 //! # Handlebars for Iron
 //!

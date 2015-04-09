@@ -86,10 +86,10 @@ impl HandlebarsEngine {
             let disp = path.to_str().unwrap();
             if disp.ends_with(suffix) {
                 let mut file = File::open(&path).ok()
-                    .expect(format!("Failed to open file {}", disp).as_slice());
+                    .expect(format!("Failed to open file {}", disp).as_ref());
                 let mut buf = String::new();
                 file.read_to_string(&mut buf).ok()
-                    .expect(format!("Failed to read file {}", disp).as_slice());
+                    .expect(format!("Failed to read file {}", disp).as_ref());
 
                 let t = r.register_template_string(
                     &disp[normalized_prefix.len() .. disp.len()-suffix.len()], buf);
@@ -113,7 +113,7 @@ impl AfterMiddleware for HandlebarsEngine {
             Some(ref h) => {
                 let name = &h.name;
                 let value = &h.value;
-                let rendered = self.registry.render(name.as_slice(), value);
+                let rendered = self.registry.render(name.as_ref(), value);
                 match rendered {
                     Ok(r) => Some(r),
                     Err(_) => None

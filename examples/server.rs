@@ -1,6 +1,6 @@
 extern crate iron;
-extern crate "handlebars-iron" as hbs;
-extern crate "rustc-serialize" as serialize;
+extern crate handlebars_iron as hbs;
+extern crate rustc_serialize as serialize;
 
 use iron::prelude::*;
 use iron::{status};
