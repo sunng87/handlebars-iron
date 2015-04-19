@@ -1,28 +1,35 @@
+#![feature(custom_derive, plugin)]
+#![plugin(tojson_macros)]
+
 extern crate iron;
 extern crate handlebars_iron as hbs;
-extern crate rustc_serialize as serialize;
+extern crate rustc_serialize;
 
 use iron::prelude::*;
 use iron::{status};
 use hbs::{Template, HandlebarsEngine};
-use serialize::json::{ToJson, Json};
+use rustc_serialize::json::{ToJson, Json};
 use std::collections::BTreeMap;
 
-/// this function is for making example data
-fn make_data() -> BTreeMap<String, Json> {
+#[derive(ToJson)]
+struct Team {
+    name: String,
+    pts: u16
+}
+
+fn make_data () -> BTreeMap<String, Json> {
     let mut data = BTreeMap::new();
 
     data.insert("year".to_string(), "2015".to_json());
 
-    let mut teams = Vec::new();
-
-    for v in vec![("Jiangsu", 43u16), ("Beijing", 27u16), ("Guangzhou", 22u16), ("Shandong", 12u16)].iter() {
-        let (name, score) = *v;
-        let mut t = BTreeMap::new();
-        t.insert("name".to_string(), name.to_json());
-        t.insert("score".to_string(), score.to_json());
-        teams.push(t)
-    }
+    let teams = vec![ Team { name: "Jiangsu Sainty".to_string(),
+                             pts: 43u16 },
+                      Team { name: "Beijing Guoan".to_string(),
+                             pts: 27u16 },
+                      Team { name: "Guangzhou Evergrand".to_string(),
+                             pts: 22u16 },
+                      Team { name: "Shandong Luneng".to_string(),
+                             pts: 12u16 } ];
 
     data.insert("teams".to_string(), teams.to_json());
     data

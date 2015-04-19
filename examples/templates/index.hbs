@@ -7,8 +7,7 @@
     <ul>
     {{#each teams}}
       <li class="{{#if @first}}champion{{/if}}">
-      {{log @index}}
-      <b>{{name}}</b>: {{score}}
+      {{@index}}. <b>{{name}}</b>: {{pts}}
       </li>
     {{/each}}
     </ul>

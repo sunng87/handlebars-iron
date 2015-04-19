@@ -20,3 +20,6 @@ modifier = "*"
 plugin = "*"
 hyper = "*"
 #notify = "*"
+
+[dev-dependencies]
+tojson_macros = "*"
