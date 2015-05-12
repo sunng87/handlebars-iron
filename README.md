@@ -6,6 +6,7 @@ for the [Iron web framework](http://ironframework.io).
 
 [![Build
 Status](https://travis-ci.org/sunng87/handlebars-iron.svg)](https://travis-ci.org/sunng87/handlebars-iron)
+[![](http://meritbadge.herokuapp.com/handlebars-iron)](https://crates.io/crates/handlebars-iron)
 
 Currently handlebars-iron still uses some unstable APIs, which means this
 project might break on Rust 1.0.0-beta. Please use Rust nightlies instead.
