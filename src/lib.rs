@@ -20,9 +20,7 @@
 extern crate iron;
 extern crate rustc_serialize as serialize;
 extern crate handlebars;
-extern crate modifier;
 extern crate plugin;
-extern crate hyper;
 
 pub use self::middleware::Template;
 pub use self::middleware::HandlebarsEngine;

@@ -9,9 +9,7 @@ use iron::prelude::*;
 use iron::{AfterMiddleware, typemap};
 use iron::modifier::Modifier;
 use plugin::Plugin as PluginFor;
-use iron::headers;
-
-use hyper::header::ContentType;
+use iron::headers::ContentType;
 
 use handlebars::Handlebars;
 use serialize::json::{ToJson, Json};
@@ -126,7 +124,7 @@ impl AfterMiddleware for HandlebarsEngine {
 
         if page.is_some() {
             if !resp.headers.has::<ContentType>() {
-                resp.headers.set(headers::ContentType(FromStr::from_str("text/html;charset=utf-8").unwrap()));
+                resp.headers.set(ContentType(FromStr::from_str("text/html;charset=utf-8").unwrap()));
             }
             resp.set_mut(page.unwrap());
         }

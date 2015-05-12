@@ -16,9 +16,7 @@ readme = "README.md"
 iron = "*"
 handlebars = "*"
 rustc-serialize = "*"
-modifier = "*"
 plugin = "*"
-hyper = "*"
 #notify = "*"
 
 [dev-dependencies]
