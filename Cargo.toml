@@ -13,11 +13,14 @@ readme = "README.md"
 
 [dependencies]
 
-iron = "*"
+##iron = "*"
 handlebars = "*"
 rustc-serialize = "*"
 plugin = "*"
-#notify = "*"
+notify = "*"
 
 [dev-dependencies]
 tojson_macros = "*"
+
+[dependencies.iron]
+path = "../../var/src/iron"
