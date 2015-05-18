@@ -8,8 +8,9 @@ for the [Iron web framework](http://ironframework.io).
 Status](https://travis-ci.org/sunng87/handlebars-iron.svg)](https://travis-ci.org/sunng87/handlebars-iron)
 [![](http://meritbadge.herokuapp.com/handlebars-iron)](https://crates.io/crates/handlebars-iron)
 
-Currently handlebars-iron still uses some unstable APIs, which means this
-project might break on Rust 1.0.0-beta. Please use Rust nightlies instead.
+The most recent version of handlebars-iron, like Iron and
+Handlebars-rust, now compiles on nightly, beta and 1.0 channel. Our
+travis task will track the compatibility on all three channels.
 
 ## Usage
 
@@ -22,7 +23,10 @@ middleware.
 ```
 
 In your handler, set `Template` to response. As required by
-Handlebars-rust, your data should impl `serialize::json::ToJson`.
+Handlebars-rust, your data should impl `serialize::json::ToJson`. If
+you are on nightly channel, it is highly recommended to use
+[tojson_macros](https://github.com/sunng87/tojson_macros) to generate
+default `ToJson` implementation without repeating yourself.
 
 ```rust
 /// render data with "index" template
