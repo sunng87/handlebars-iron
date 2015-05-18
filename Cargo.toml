@@ -17,6 +17,7 @@ iron = "*"
 handlebars = "*"
 rustc-serialize = "*"
 plugin = "*"
+walker = "1.0.0"
 #notify = "*"
 
 [dev-dependencies]

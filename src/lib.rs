@@ -1,5 +1,3 @@
-#![feature(fs_walk, path_ext)]
-
 //! # Handlebars for Iron
 //!
 //! This library combines [Handlebars templating library](https://github.com/sunng87/handlebars-rust) and [Iron web framework](http://ironframework.io) together. It gives you a `HandlebarsEngine` as Iron `AfterMiddleware`, so you can render your data with specified handlebars template.
@@ -21,6 +19,7 @@ extern crate iron;
 extern crate rustc_serialize as serialize;
 extern crate handlebars;
 extern crate plugin;
+extern crate walker;
 
 pub use self::middleware::Template;
 pub use self::middleware::HandlebarsEngine;
