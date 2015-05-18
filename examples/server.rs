@@ -1,6 +1,3 @@
-#![feature(custom_derive, plugin)]
-#![plugin(tojson_macros)]
-
 extern crate iron;
 extern crate handlebars_iron as hbs;
 extern crate rustc_serialize;
@@ -11,10 +8,18 @@ use hbs::{Template, HandlebarsEngine};
 use rustc_serialize::json::{ToJson, Json};
 use std::collections::BTreeMap;
 
-#[derive(ToJson)]
 struct Team {
     name: String,
     pts: u16
+}
+
+impl ToJson for Team {
+    fn to_json(&self) -> Json {
+        let mut m: BTreeMap<String, Json> = BTreeMap::new();
+        m.insert("name".to_string(), self.name.to_json());
+        m.insert("pts".to_string(), self.pts.to_json());
+        m.to_json()
+    }
 }
 
 fn make_data () -> BTreeMap<String, Json> {
