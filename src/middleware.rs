@@ -1,9 +1,8 @@
 use std::str::FromStr;
-use std::fs::{File, walk_dir};
+use std::fs::File;
 use std::path::Path;
 use std::io::prelude::*;
 use std::result::Result;
-use std::env;
 use std::sync::RwLock;
 
 use iron::prelude::*;
@@ -11,6 +10,7 @@ use iron::{AfterMiddleware, typemap};
 use iron::modifier::Modifier;
 use plugin::Plugin as PluginFor;
 use iron::headers::ContentType;
+use walker::Walker;
 
 use handlebars::Handlebars;
 use serialize::json::{ToJson, Json};
@@ -70,18 +70,9 @@ impl HandlebarsEngine {
             prefix_slash
         };
         let prefix_path = Path::new(&normalized_prefix);
-        if ! prefix_path.exists() {
-            let abs_prefix_path = if prefix_path.is_relative() {
-                 let mut p = env::current_dir().ok().unwrap();
-                 p.push(prefix_path);
-                 p.iter().collect() // normalization
-            } else { prefix_path.to_path_buf() };
-            panic!("Prefix path '{}' doesn't exist.", abs_prefix_path.display());
-        }
-
-        let walker = walk_dir(prefix_path);
+        let walker = Walker::new(prefix_path);
         if !walker.is_ok() {
-            panic!("Failed to list directory.");
+            panic!(format!("Failed to list directory: {}", normalized_prefix));
         }
 
         hbs.clear_templates();
