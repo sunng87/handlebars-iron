@@ -89,16 +89,18 @@ impl HandlebarsEngine {
             let path = p.path();
             let disp = path.to_str().unwrap();
             if disp.ends_with(suffix) {
-                let mut file = File::open(&path).ok()
-                    .expect(format!("Failed to open file {}", disp).as_ref());
-                let mut buf = String::new();
-                file.read_to_string(&mut buf).ok()
-                    .expect(format!("Failed to read file {}", disp).as_ref());
-
-                let t = hbs.register_template_string(
-                    &disp[normalized_prefix.len() .. disp.len()-suffix.len()], buf);
-                if t.is_err() {
-                    panic!("Failed to create template.");
+                if let Ok(mut file) = File::open(&path) {
+                    let mut buf = String::new();
+                    if let Ok(_) = file.read_to_string(&mut buf) {
+                        if let Err(e) = hbs.register_template_string(
+                            &disp[normalized_prefix.len() .. disp.len()-suffix.len()], buf){
+                            println!("Failed to parse template {}", e);
+                        }
+                    } else {
+                        println!("Failed to read file {}, skipped", disp);
+                    }
+                } else {
+                    println!("Failed to open file {}, skipped.", disp);
                 }
             }
         }
