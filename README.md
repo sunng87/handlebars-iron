@@ -5,7 +5,7 @@ handlebars-iron
 for the [Iron web framework](http://ironframework.io).
 
 [![Build
-Status](https://travis-ci.org/sunng87/handlebars-iron.svg)](https://travis-ci.org/sunng87/handlebars-iron)
+Status](https://travis-ci.org/sunng87/handlebars-iron.svg?branch=master)](https://travis-ci.org/sunng87/handlebars-iron)
 [![](http://meritbadge.herokuapp.com/handlebars-iron)](https://crates.io/crates/handlebars-iron)
 
 The most recent version of handlebars-iron, like Iron and
