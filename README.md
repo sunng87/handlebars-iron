@@ -52,6 +52,21 @@ keep this library compiles with latest Rust nightly before the 1.0
 final release. If you find anything bad, pull requests and issue reporting
 are always welcomed.
 
+## Live reload
+
+During development you may want to live-reload your templates without
+having to restart your web server. Here comes the live-reload
+feature.
+
+```rust
+    let template_engine_ref = Arc::new(HandlebarsEngine::new("./examples/templates/", ".hbs"));
+    template_engine_ref.watch();
+
+    chain.link_after(template_engine_ref);
+```
+
+Check `examples/watch_server.rs` for further information.
+
 ## License
 
 MIT, of course.
