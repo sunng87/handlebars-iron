@@ -18,7 +18,4 @@ handlebars = "*"
 rustc-serialize = "*"
 plugin = "*"
 walker = "*"
-#notify = "*"
-
-[dev-dependencies]
-#tojson_macros = "*"
+notify = "*"

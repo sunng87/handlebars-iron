@@ -3,6 +3,7 @@ use std::fs::File;
 use std::path::Path;
 use std::io::prelude::*;
 use std::result::Result;
+use std::sync::RwLock;
 
 use iron::prelude::*;
 use iron::{AfterMiddleware, typemap};
@@ -13,10 +14,6 @@ use walker::Walker;
 
 use handlebars::Handlebars;
 use serialize::json::{ToJson, Json};
-
-pub struct HandlebarsEngine {
-    registry: Box<Handlebars>
-}
 
 #[derive(Clone)]
 pub struct Template {
@@ -31,6 +28,12 @@ impl Template {
             value: value.to_json()
         }
     }
+}
+
+pub struct HandlebarsEngine {
+    pub prefix: String,
+    pub suffix: String,
+    pub registry: RwLock<Box<Handlebars>>
 }
 
 impl typemap::Key for HandlebarsEngine {
@@ -55,11 +58,12 @@ impl PluginFor<Response> for HandlebarsEngine {
 }
 
 impl HandlebarsEngine {
-    pub fn new(prefix: &str, suffix: &str) -> HandlebarsEngine {
-        let mut r = Handlebars::new();
+    pub fn reload(&self) {
+        let mut prefix_slash = self.prefix.clone();
+        let suffix: &str = self.suffix.as_ref();
+        let mut hbs = self.registry.write().unwrap();
 
-        let mut prefix_slash = prefix.to_string();
-        let normalized_prefix = if prefix.ends_with("/") {
+        let normalized_prefix = if self.prefix.ends_with("/") {
             prefix_slash
         } else {
             prefix_slash.push('/');
@@ -68,29 +72,39 @@ impl HandlebarsEngine {
         let prefix_path = Path::new(&normalized_prefix);
         let walker = Walker::new(prefix_path);
         if !walker.is_ok() {
-            panic!(format!("Failed to list directory: {}", prefix));
+            panic!(format!("Failed to list directory: {}", normalized_prefix));
         }
+
+        hbs.clear_templates();
         for p in walker.ok().unwrap().filter_map(Result::ok) {
             let path = p.path();
             let disp = path.to_str().unwrap();
             if disp.ends_with(suffix) {
-                let mut file = File::open(&path).ok()
-                    .expect(format!("Failed to open file {}", disp).as_ref());
-                let mut buf = String::new();
-                file.read_to_string(&mut buf).ok()
-                    .expect(format!("Failed to read file {}", disp).as_ref());
-
-                let t = r.register_template_string(
-                    &disp[normalized_prefix.len() .. disp.len()-suffix.len()], buf);
-                if t.is_err() {
-                    panic!("Failed to create template.");
+                if let Ok(mut file) = File::open(&path) {
+                    let mut buf = String::new();
+                    if let Ok(_) = file.read_to_string(&mut buf) {
+                        if let Err(e) = hbs.register_template_string(
+                            &disp[normalized_prefix.len() .. disp.len()-suffix.len()], buf){
+                            println!("Failed to parse template {}", e);
+                        }
+                    } else {
+                        println!("Failed to read file {}, skipped", disp);
+                    }
+                } else {
+                    println!("Failed to open file {}, skipped.", disp);
                 }
             }
         }
+    }
 
-        HandlebarsEngine {
-            registry: Box::new(r)
-        }
+    pub fn new(prefix: &str, suffix: &str) -> HandlebarsEngine {
+        let eng = HandlebarsEngine {
+            prefix: prefix.to_string(),
+            suffix: suffix.to_string(),
+            registry: RwLock::new(Box::new(Handlebars::new()))
+        };
+        eng.reload();
+        eng
     }
 }
 
@@ -102,7 +116,8 @@ impl AfterMiddleware for HandlebarsEngine {
             Some(ref h) => {
                 let name = &h.name;
                 let value = &h.value;
-                let rendered = self.registry.render(name.as_ref(), value);
+                let hbs = self.registry.read().unwrap();
+                let rendered = hbs.render(name.as_ref(), value);
                 match rendered {
                     Ok(r) => Some(r),
                     Err(_) => None
@@ -130,6 +145,7 @@ mod test {
     use std::collections::BTreeMap;
     use iron::prelude::*;
     use middleware::*;
+    use handlebars::{Handlebars, RenderError, RenderContext, Helper, Context};
 
     fn hello_world() -> IronResult<Response> {
         let resp = Response::new();
@@ -155,5 +171,14 @@ mod test {
             },
             _ => panic!("template expected")
         }
+    }
+
+    #[test]
+    fn test_register_helper() {
+        let hbs = HandlebarsEngine::new("./examples/templates", ".hbs");
+        let mut reg = hbs.registry.write().unwrap();
+        reg.register_helper("ignore", Box::new(|_: &Context, _: &Helper, _: &Handlebars, _: &mut RenderContext| -> Result<String, RenderError> {
+            Ok("".to_string())
+        }));
     }
 }
