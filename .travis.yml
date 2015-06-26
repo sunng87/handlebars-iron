@@ -2,6 +2,7 @@ language: rust
 rust:
   - nightly
   - 1.0.0
+  - 1.1.0
   - beta
 after_success: |
   echo $TRAVIS_RUST_VERSION && \
