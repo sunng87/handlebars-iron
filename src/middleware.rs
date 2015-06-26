@@ -97,14 +97,18 @@ impl HandlebarsEngine {
         }
     }
 
-    pub fn new(prefix: &str, suffix: &str) -> HandlebarsEngine {
+    pub fn from(prefix: &str, suffix: &str, custom: Handlebars) -> HandlebarsEngine {
         let eng = HandlebarsEngine {
             prefix: prefix.to_string(),
             suffix: suffix.to_string(),
-            registry: RwLock::new(Box::new(Handlebars::new()))
+            registry: RwLock::new(Box::new(custom))
         };
         eng.reload();
         eng
+    }
+
+    pub fn new(prefix: &str, suffix: &str) -> HandlebarsEngine {
+        HandlebarsEngine::from(prefix,suffix, Handlebars::new())
     }
 }
 
