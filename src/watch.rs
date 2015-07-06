@@ -6,10 +6,10 @@ use std::sync::mpsc::channel;
 use std::sync::Arc;
 use std::thread;
 
-fn _watch (p: String) -> Result<(), Error>{
+fn _watch (p: &Path) -> Result<(), Error>{
     let (tx, rx) = channel();
     let mut watcher: RecommendedWatcher = try!(Watcher::new(tx));
-    try!(watcher.watch(&Path::new(&p)));
+    try!(watcher.watch(p));
     let _ = rx.recv();
     Ok(())
 }
@@ -24,15 +24,20 @@ impl Watchable for Arc<HandlebarsEngine> {
         let hbs = self.clone();
         thread::spawn(move || {
             println!("watching path: {}", hbs.prefix);
+            let prefix = hbs.prefix.clone();
+            let path = Path::new(&prefix);
             while true {
-                if let Ok(_) = _watch(hbs.prefix.clone()) {
-                    println!("things changed");
-                    hbs.reload();
-                } else {
-                    panic!("Failed to watch template directory.");
+                match _watch(&path) {
+                    Ok(_) => {
+                        println!("things changed");
+                        hbs.reload();
+                    },
+                    Err(e) => {
+                        println!("Failed to watch directory: {:?}", e);
+                        panic!();
+                    }
                 }
             }
         });
-
     }
 }

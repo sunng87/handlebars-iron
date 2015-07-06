@@ -57,6 +57,10 @@ impl PluginFor<Response> for HandlebarsEngine {
     }
 }
 
+fn is_temp_file(tpl_name: &str) -> bool {
+    tpl_name.starts_with(".") || tpl_name.starts_with("#")
+}
+
 impl HandlebarsEngine {
     pub fn reload(&self) {
         let mut prefix_slash = self.prefix.clone();
@@ -80,18 +84,20 @@ impl HandlebarsEngine {
             let path = p.path();
             let disp = path.to_str().unwrap();
             if disp.ends_with(suffix) {
-                if let Ok(mut file) = File::open(&path) {
-                    let mut buf = String::new();
-                    if let Ok(_) = file.read_to_string(&mut buf) {
-                        if let Err(e) = hbs.register_template_string(
-                            &disp[normalized_prefix.len() .. disp.len()-suffix.len()], buf){
-                            println!("Failed to parse template {}", e);
+                let tpl_name = &disp[normalized_prefix.len() .. disp.len()-suffix.len()];
+                if !is_temp_file(tpl_name) {
+                    if let Ok(mut file) = File::open(&path) {
+                        let mut buf = String::new();
+                        if let Ok(_) = file.read_to_string(&mut buf) {
+                            if let Err(e) = hbs.register_template_string(tpl_name, buf){
+                                println!("Failed to parse template {}, {}", tpl_name, e);
+                            }
+                        } else {
+                            println!("Failed to read file {}, skipped", disp);
                         }
                     } else {
-                        println!("Failed to read file {}, skipped", disp);
+                        println!("Failed to open file {}, skipped.", disp);
                     }
-                } else {
-                    println!("Failed to open file {}, skipped.", disp);
                 }
             }
         }
