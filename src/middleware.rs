@@ -181,8 +181,8 @@ mod test {
     fn test_register_helper() {
         let hbs = HandlebarsEngine::new("./examples/templates", ".hbs");
         let mut reg = hbs.registry.write().unwrap();
-        reg.register_helper("ignore", Box::new(|_: &Context, _: &Helper, _: &Handlebars, _: &mut RenderContext| -> Result<String, RenderError> {
-            Ok("".to_string())
+        reg.register_helper("ignore", Box::new(|_: &Context, _: &Helper, _: &Handlebars, _: &mut RenderContext| -> Result<(), RenderError> {
+            Ok(())
         }));
     }
 }
