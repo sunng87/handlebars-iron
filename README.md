@@ -58,6 +58,19 @@ During development you may want to live-reload your templates without
 having to restart your web server. Here comes the live-reload
 feature.
 
+Since live-reload may only be useful in development phase, we have
+made it a optional feature. In order to enable it, you will need to
+add feature `watch` in your cargo declaration:
+
+```
+[features]
+## create a feature in your app
+watch = ["handlebars-iron/watch"]
+
+[dependencies]
+handlebars-iron = "*"
+```
+
 ```rust
     let template_engine_ref = Arc::new(HandlebarsEngine::new("./examples/templates/", ".hbs"));
     template_engine_ref.watch();
@@ -65,7 +78,8 @@ feature.
     chain.link_after(template_engine_ref);
 ```
 
-Check `examples/watch_server.rs` for further information.
+Check `examples/watch_server.rs` for further information. To test it:
+`cargo run --example watch_server --features watch`.
 
 ## License
 
