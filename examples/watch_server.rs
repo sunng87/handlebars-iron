@@ -1,10 +1,13 @@
+#![allow(dead_code, unused_imports)]
 extern crate iron;
 extern crate handlebars_iron as hbs;
 extern crate rustc_serialize;
 
 use iron::prelude::*;
 use iron::{status};
-use hbs::{Template, HandlebarsEngine, Watchable};
+use hbs::{Template, HandlebarsEngine};
+#[cfg(feature = "watch")]
+use hbs::Watchable;
 use rustc_serialize::json::{ToJson, Json};
 use std::collections::BTreeMap;
 use std::sync::Arc;
@@ -50,6 +53,7 @@ fn hello_world(_: &mut Request) -> IronResult<Response> {
     Ok(resp)
 }
 
+#[cfg(feature = "watch")]
 fn main() {
     let mut chain = Chain::new(hello_world);
     let template_engine_ref = Arc::new(HandlebarsEngine::new("./examples/templates/", ".hbs"));
@@ -59,4 +63,9 @@ fn main() {
 
     println!("Server running at http://localhost:3000/");
     Iron::new(chain).http("localhost:3000").unwrap();
+}
+
+#[cfg(not(feature = "watch"))]
+fn main() {
+    println!("Watch only enabled via --features watch option");
 }
