@@ -19,12 +19,16 @@ extern crate iron;
 extern crate rustc_serialize as serialize;
 extern crate handlebars;
 extern crate plugin;
-extern crate notify;
 extern crate walker;
+#[cfg(feature = "watch")]
+extern crate notify;
+
 
 pub use self::middleware::Template;
 pub use self::middleware::HandlebarsEngine;
+#[cfg(feature = "watch")]
 pub use self::watch::Watchable;
 
 mod middleware;
+#[cfg(feature = "watch")]
 mod watch;

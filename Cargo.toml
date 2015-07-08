@@ -18,4 +18,8 @@ handlebars = "*"
 rustc-serialize = "*"
 plugin = "*"
 walker = "*"
-notify = "*"
+notify = { version = "*", optional = true }
+
+[features]
+default = []
+watch = ["notify"]
