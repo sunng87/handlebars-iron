@@ -19,14 +19,13 @@ pub trait Watchable {
 }
 
 impl Watchable for Arc<HandlebarsEngine> {
-    #[allow(while_true)]
     fn watch (&self) {
         let hbs = self.clone();
         thread::spawn(move || {
             println!("watching path: {}", hbs.prefix);
             let prefix = hbs.prefix.clone();
             let path = Path::new(&prefix);
-            while true {
+            loop {
                 match _watch(&path) {
                     Ok(_) => {
                         println!("things changed");
