@@ -1,8 +1,6 @@
-use std::str::FromStr;
 use std::fs::File;
 use std::path::Path;
 use std::io::prelude::*;
-use std::result::Result;
 use std::sync::RwLock;
 
 use iron::prelude::*;
@@ -61,42 +59,47 @@ fn is_temp_file(tpl_name: &str) -> bool {
     tpl_name.starts_with(".") || tpl_name.starts_with("#")
 }
 
+fn read_file(path: &Path) -> Option<String> {
+    if let Ok(mut file) = File::open(path) {
+        let mut buf = String::new();
+        if file.read_to_string(&mut buf).is_ok() {
+            Some(buf)
+        } else {
+            println!("Failed to read file {}, skipped", path.display());
+            None
+        }
+    } else {
+        println!("Failed to open file {}, skipped.", path.display());
+        None
+    }
+}
+
 impl HandlebarsEngine {
     pub fn reload(&self) {
-        let mut prefix_slash = self.prefix.clone();
-        let suffix: &str = self.suffix.as_ref();
         let mut hbs = self.registry.write().unwrap();
 
-        let normalized_prefix = if self.prefix.ends_with("/") {
-            prefix_slash
-        } else {
-            prefix_slash.push('/');
-            prefix_slash
-        };
-        let prefix_path = Path::new(&normalized_prefix);
-        let walker = Walker::new(prefix_path);
-        if !walker.is_ok() {
-            panic!(format!("Failed to list directory: {}", normalized_prefix));
+        let mut prefix = self.prefix.clone();
+        if !prefix.ends_with('/') {
+            prefix.push('/');
         }
+        let normalized_prefix = prefix;
+
+        let prefix_path = Path::new(&normalized_prefix);
+        let walker = Walker::new(prefix_path).ok().expect(
+            &format!("Failed to list directory: {}", normalized_prefix));
 
         hbs.clear_templates();
-        for p in walker.ok().unwrap().filter_map(Result::ok) {
+        let suffix = &self.suffix;
+        for p in walker.filter_map(Result::ok) {
             let path = p.path();
             let disp = path.to_str().unwrap();
             if disp.ends_with(suffix) {
                 let tpl_name = &disp[normalized_prefix.len() .. disp.len()-suffix.len()];
                 if !is_temp_file(tpl_name) {
-                    if let Ok(mut file) = File::open(&path) {
-                        let mut buf = String::new();
-                        if let Ok(_) = file.read_to_string(&mut buf) {
-                            if let Err(e) = hbs.register_template_string(tpl_name, buf){
-                                println!("Failed to parse template {}, {}", tpl_name, e);
-                            }
-                        } else {
-                            println!("Failed to read file {}, skipped", disp);
+                    if let Some(tpl) = read_file(&path) {
+                        if let Err(e) = hbs.register_template_string(tpl_name, tpl){
+                            println!("Failed to parse template {}, {}", tpl_name, e);
                         }
-                    } else {
-                        println!("Failed to open file {}, skipped.", disp);
                     }
                 }
             }
@@ -122,27 +125,17 @@ impl AfterMiddleware for HandlebarsEngine {
     fn after(&self, _: &mut Request, r: Response) -> IronResult<Response> {
         let mut resp = r;
         // internally we still extensions.get to avoid clone
-        let page = match resp.extensions.get::<HandlebarsEngine>() {
-            Some(ref h) => {
-                let name = &h.name;
-                let value = &h.value;
-                let hbs = self.registry.read().unwrap();
-                let rendered = hbs.render(name.as_ref(), value);
-                match rendered {
-                    Ok(r) => Some(r),
-                    Err(_) => None
-                }
-            },
-            None => {
-                None
-            }
-        };
+        let page = resp.extensions.get::<HandlebarsEngine>().as_ref()
+                    .and_then(|h| {
+                        let hbs = self.registry.read().unwrap();
+                        hbs.render(&h.name, &h.value).ok()
+                    });
 
-        if page.is_some() {
+        if let Some(page) = page {
             if !resp.headers.has::<ContentType>() {
-                resp.headers.set(ContentType(FromStr::from_str("text/html;charset=utf-8").unwrap()));
+                resp.headers.set(ContentType::html());
             }
-            resp.set_mut(page.unwrap());
+            resp.set_mut(page);
         }
 
         Ok(resp)
