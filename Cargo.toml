@@ -13,12 +13,12 @@ readme = "README.md"
 
 [dependencies]
 
-iron = "*"
-handlebars = "*"
-rustc-serialize = "*"
-plugin = "*"
-walker = "*"
-notify = { version = "*", optional = true }
+iron = "^0.1.20"
+handlebars = "^0.9.2"
+rustc-serialize = "^0.3.15"
+plugin = "^0.2.6"
+walker = "^1.0"
+notify = { version = "^2.3", optional = true }
 
 [features]
 default = []
