@@ -9,7 +9,7 @@ after_success: |
   [ $TRAVIS_BRANCH == 'master' ] && \
   [ $TRAVIS_RUST_VERSION == '1.0.0' ] && \
   cargo doc && \
-  echo '<meta http-equiv=refresh content=0;url=handlebars-iron/index.html>' > target/doc/index.html && \
+  echo '<meta http-equiv=refresh content=0;url=handlebars_iron/index.html>' > target/doc/index.html && \
   sudo pip install ghp-import && \
   ghp-import -n target/doc && \
   git push -qf https://${TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git gh-pages
