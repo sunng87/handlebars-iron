@@ -4,6 +4,7 @@ use std::io::prelude::*;
 use std::sync::RwLock;
 
 use iron::prelude::*;
+use iron::{status};
 use iron::{AfterMiddleware, typemap};
 use iron::modifier::Modifier;
 use plugin::Plugin as PluginFor;
@@ -124,21 +125,31 @@ impl HandlebarsEngine {
 impl AfterMiddleware for HandlebarsEngine {
     fn after(&self, _: &mut Request, r: Response) -> IronResult<Response> {
         let mut resp = r;
-        // internally we still extensions.get to avoid clone
         let page = resp.extensions.get::<HandlebarsEngine>().as_ref()
                     .and_then(|h| {
                         let hbs = self.registry.read().unwrap();
-                        hbs.render(&h.name, &h.value).ok()
+                        Some(hbs.render(&h.name, &h.value))
                     });
 
-        if let Some(page) = page {
-            if !resp.headers.has::<ContentType>() {
-                resp.headers.set(ContentType::html());
+        match page {
+            Some(page) => {
+                match page {
+                    Ok(page) => {
+                        if !resp.headers.has::<ContentType>() {
+                            resp.headers.set(ContentType::html());
+                        }
+                        resp.set_mut(page);
+                        Ok(resp)
+                    }
+                    Err(e) => {
+                        Err(IronError::new(e, status::InternalServerError))
+                    }
+                }
             }
-            resp.set_mut(page);
+            None => {
+                Ok(resp)
+            }
         }
-
-        Ok(resp)
     }
 }
 
