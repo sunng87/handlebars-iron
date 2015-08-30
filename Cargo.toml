@@ -19,6 +19,7 @@ rustc-serialize = "^0.3.15"
 plugin = "^0.2.6"
 walker = "^1.0"
 notify = { version = "^2.3", optional = true }
+log = "^0.3"
 
 [features]
 default = []

@@ -2,6 +2,7 @@ use std::fs::File;
 use std::path::Path;
 use std::io::prelude::*;
 use std::sync::RwLock;
+use std::error::Error;
 
 use iron::prelude::*;
 use iron::{status};
@@ -66,11 +67,11 @@ fn read_file(path: &Path) -> Option<String> {
         if file.read_to_string(&mut buf).is_ok() {
             Some(buf)
         } else {
-            println!("Failed to read file {}, skipped", path.display());
+            info!("Failed to read file {}, skipped", path.display());
             None
         }
     } else {
-        println!("Failed to open file {}, skipped.", path.display());
+        info!("Failed to open file {}, skipped.", path.display());
         None
     }
 }
@@ -99,7 +100,7 @@ impl HandlebarsEngine {
                 if !is_temp_file(tpl_name) {
                     if let Some(tpl) = read_file(&path) {
                         if let Err(e) = hbs.register_template_string(tpl_name, tpl){
-                            println!("Failed to parse template {}, {}", tpl_name, e);
+                            warn!("Failed to parse template {}, {}", tpl_name, e);
                         }
                     }
                 }
@@ -125,15 +126,15 @@ impl HandlebarsEngine {
 impl AfterMiddleware for HandlebarsEngine {
     fn after(&self, _: &mut Request, r: Response) -> IronResult<Response> {
         let mut resp = r;
-        let page = resp.extensions.get::<HandlebarsEngine>().as_ref()
-                    .and_then(|h| {
-                        let hbs = self.registry.read().unwrap();
-                        Some(hbs.render(&h.name, &h.value))
-                    });
+        let page_wrapper = resp.extensions.get::<HandlebarsEngine>().as_ref()
+            .and_then(|h| {
+                let hbs = self.registry.read().unwrap();
+                Some(hbs.render(&h.name, &h.value))
+            });
 
-        match page {
-            Some(page) => {
-                match page {
+        match page_wrapper {
+            Some(page_result) => {
+                match page_result {
                     Ok(page) => {
                         if !resp.headers.has::<ContentType>() {
                             resp.headers.set(ContentType::html());
@@ -142,6 +143,7 @@ impl AfterMiddleware for HandlebarsEngine {
                         Ok(resp)
                     }
                     Err(e) => {
+                        info!("{}", e.description());
                         Err(IronError::new(e, status::InternalServerError))
                     }
                 }
