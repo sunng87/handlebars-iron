@@ -9,7 +9,7 @@ Status](https://travis-ci.org/sunng87/handlebars-iron.svg?branch=master)](https:
 [![](http://meritbadge.herokuapp.com/handlebars-iron)](https://crates.io/crates/handlebars-iron)
 
 The most recent version of handlebars-iron, like Iron and
-Handlebars-rust, now compiles on nightly, beta and 1.0 channel. Our
+Handlebars-rust, now compiles on nightly, beta and latest stable channel. Our
 travis task will track the compatibility on all three channels.
 
 ## Usage
