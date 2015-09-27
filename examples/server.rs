@@ -1,4 +1,5 @@
 extern crate iron;
+extern crate env_logger;
 extern crate handlebars_iron as hbs;
 extern crate rustc_serialize;
 
@@ -50,6 +51,8 @@ fn hello_world(_: &mut Request) -> IronResult<Response> {
 }
 
 fn main() {
+    env_logger::init().unwrap();
+
     let mut chain = Chain::new(hello_world);
     chain.link_after(HandlebarsEngine::new("./examples/templates/", ".hbs"));
     println!("Server running at http://localhost:3000/");

@@ -24,3 +24,6 @@ log = "^0.3"
 [features]
 default = []
 watch = ["notify"]
+
+[dev-dependencies]
+env_logger = "*"
