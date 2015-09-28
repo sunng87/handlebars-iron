@@ -10,7 +10,7 @@ use iron::{AfterMiddleware, typemap};
 use iron::modifier::Modifier;
 use plugin::Plugin as PluginFor;
 use iron::headers::ContentType;
-use walker::Walker;
+use walkdir::{WalkDir, DirEntry};
 
 use handlebars::Handlebars;
 use serialize::json::{ToJson, Json};
@@ -57,10 +57,6 @@ impl PluginFor<Response> for HandlebarsEngine {
     }
 }
 
-fn is_temp_file(tpl_name: &str) -> bool {
-    tpl_name.starts_with(".") || tpl_name.starts_with("#")
-}
-
 fn read_file(path: &Path) -> Option<String> {
     if let Ok(mut file) = File::open(path) {
         let mut buf = String::new();
@@ -76,6 +72,12 @@ fn read_file(path: &Path) -> Option<String> {
     }
 }
 
+fn is_hidden_or_temp(entry: &DirEntry, suffix: &str) -> bool {
+    entry.file_name().to_str()
+        .and_then(|s| Some(s.starts_with(".") || s.starts_with("#") || s.ends_with(suffix)))
+        .unwrap_or(false)
+}
+
 impl HandlebarsEngine {
     pub fn reload(&self) {
         let mut hbs = self.registry.write().unwrap();
@@ -87,22 +89,17 @@ impl HandlebarsEngine {
         let normalized_prefix = prefix;
 
         let prefix_path = Path::new(&normalized_prefix);
-        let walker = Walker::new(prefix_path).ok().expect(
-            &format!("Failed to list directory: {}", normalized_prefix));
+        let walker = WalkDir::new(prefix_path);
 
         hbs.clear_templates();
         let suffix = &self.suffix;
-        for p in walker.filter_map(Result::ok) {
+        for p in walker.into_iter().filter(|e| e.is_ok() && !is_hidden_or_temp(e.as_ref().unwrap(), suffix)).map(|e| e.unwrap()) {
             let path = p.path();
             let disp = path.to_str().unwrap();
-            if disp.ends_with(suffix) {
-                let tpl_name = &disp[normalized_prefix.len() .. disp.len()-suffix.len()];
-                if !is_temp_file(tpl_name) {
-                    if let Some(tpl) = read_file(&path) {
-                        if let Err(e) = hbs.register_template_string(tpl_name, tpl){
-                            warn!("Failed to parse template {}, {}", tpl_name, e);
-                        }
-                    }
+            let tpl_name = &disp[normalized_prefix.len() .. disp.len()-suffix.len()];
+            if let Some(tpl) = read_file(&path) {
+                if let Err(e) = hbs.register_template_string(tpl_name, tpl){
+                    warn!("Failed to parse template {}, {}", tpl_name, e);
                 }
             }
         }
