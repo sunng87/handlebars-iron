@@ -93,7 +93,7 @@ impl HandlebarsEngine {
 
         hbs.clear_templates();
         let suffix = &self.suffix;
-        for p in walker.into_iter().filter(|e| e.is_ok() && !is_hidden_or_temp(e.as_ref().unwrap(), suffix)).map(|e| e.unwrap()) {
+        for p in walker.min_depth(1).into_iter().filter(|e| e.is_ok() && !is_hidden_or_temp(e.as_ref().unwrap(), suffix)).map(|e| e.unwrap()) {
             let path = p.path();
             let disp = path.to_str().unwrap();
             let tpl_name = &disp[normalized_prefix.len() .. disp.len()-suffix.len()];
@@ -116,7 +116,7 @@ impl HandlebarsEngine {
     }
 
     pub fn new(prefix: &str, suffix: &str) -> HandlebarsEngine {
-        HandlebarsEngine::from(prefix,suffix, Handlebars::new())
+        HandlebarsEngine::from(prefix, suffix, Handlebars::new())
     }
 }
 
