@@ -1,5 +1,6 @@
 use std::fs::File;
-use std::path::Path;
+use std::env::current_dir;
+use std::path::{Path, PathBuf};
 use std::io::prelude::*;
 use std::sync::RwLock;
 use std::error::Error;
@@ -72,35 +73,43 @@ fn read_file(path: &Path) -> Option<String> {
     }
 }
 
-fn is_hidden_or_temp(entry: &DirEntry, suffix: &str) -> bool {
+fn filter_file(entry: &DirEntry, suffix: &str) -> bool {
     entry.file_name().to_str()
-        .and_then(|s| Some(s.starts_with(".") || s.starts_with("#") || s.ends_with(suffix)))
+        .and_then(|s| Some(s.starts_with(".") || s.starts_with("#") || !s.ends_with(suffix)))
         .unwrap_or(false)
 }
 
 impl HandlebarsEngine {
     pub fn reload(&self) {
         let mut hbs = self.registry.write().unwrap();
+        match current_dir()  {
+            Ok(current_path) => {
+                let mut prefix_path = PathBuf::from(current_path);
+                prefix_path.push(self.prefix.clone());
+                let template_path = prefix_path.as_path();
 
-        let mut prefix = self.prefix.clone();
-        if !prefix.ends_with('/') {
-            prefix.push('/');
-        }
-        let normalized_prefix = prefix;
+                info!("Loading templates from path {}", template_path.display());
+                let walker = WalkDir::new(template_path);
 
-        let prefix_path = Path::new(&normalized_prefix);
-        let walker = WalkDir::new(prefix_path);
-
-        hbs.clear_templates();
-        let suffix = &self.suffix;
-        for p in walker.min_depth(1).into_iter().filter(|e| e.is_ok() && !is_hidden_or_temp(e.as_ref().unwrap(), suffix)).map(|e| e.unwrap()) {
-            let path = p.path();
-            let disp = path.to_str().unwrap();
-            let tpl_name = &disp[normalized_prefix.len() .. disp.len()-suffix.len()];
-            if let Some(tpl) = read_file(&path) {
-                if let Err(e) = hbs.register_template_string(tpl_name, tpl){
-                    warn!("Failed to parse template {}, {}", tpl_name, e);
+                hbs.clear_templates();
+                let suffix = &self.suffix;
+                let prefix_len = template_path.as_os_str().to_str().unwrap().len();
+                for p in walker.min_depth(1).into_iter().filter(|e| e.is_ok() && !filter_file(e.as_ref().unwrap(), suffix)).map(|e| e.unwrap()) {
+                    let path = p.path();
+                    let disp = path.to_str().unwrap();
+                    debug!("getting file {}", disp);
+                    let tpl_name = &disp[prefix_len .. disp.len()-suffix.len()];
+                    if let Some(tpl) = read_file(&path) {
+                        if let Err(e) = hbs.register_template_string(tpl_name, tpl){
+                            warn!("Failed to parse template {}, {}", tpl_name, e);
+                        } else {
+                            info!("Added template {}", tpl_name);
+                        }
+                    }
                 }
+            },
+            Err(e) => {
+                error!("Failed to get current directory due to {}", e);
             }
         }
     }
