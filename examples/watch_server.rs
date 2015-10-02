@@ -2,6 +2,7 @@
 extern crate iron;
 extern crate handlebars_iron as hbs;
 extern crate rustc_serialize;
+extern crate env_logger;
 
 use iron::prelude::*;
 use iron::{status};
@@ -11,6 +12,7 @@ use hbs::Watchable;
 use rustc_serialize::json::{ToJson, Json};
 use std::collections::BTreeMap;
 use std::sync::Arc;
+
 
 struct Team {
     name: String,
@@ -55,6 +57,8 @@ fn hello_world(_: &mut Request) -> IronResult<Response> {
 
 #[cfg(feature = "watch")]
 fn main() {
+    env_logger::init().unwrap();
+
     let mut chain = Chain::new(hello_world);
     let template_engine_ref = Arc::new(HandlebarsEngine::new("./examples/templates/", ".hbs"));
     template_engine_ref.watch();

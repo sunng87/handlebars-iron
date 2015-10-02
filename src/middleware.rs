@@ -1,5 +1,6 @@
 use std::fs::File;
-use std::path::Path;
+use std::env::current_dir;
+use std::path::{Path, PathBuf};
 use std::io::prelude::*;
 use std::sync::RwLock;
 use std::error::Error;
@@ -10,7 +11,7 @@ use iron::{AfterMiddleware, typemap};
 use iron::modifier::Modifier;
 use plugin::Plugin as PluginFor;
 use iron::headers::ContentType;
-use walker::Walker;
+use walkdir::{WalkDir, DirEntry};
 
 use handlebars::Handlebars;
 use serialize::json::{ToJson, Json};
@@ -57,10 +58,6 @@ impl PluginFor<Response> for HandlebarsEngine {
     }
 }
 
-fn is_temp_file(tpl_name: &str) -> bool {
-    tpl_name.starts_with(".") || tpl_name.starts_with("#")
-}
-
 fn read_file(path: &Path) -> Option<String> {
     if let Ok(mut file) = File::open(path) {
         let mut buf = String::new();
@@ -76,34 +73,43 @@ fn read_file(path: &Path) -> Option<String> {
     }
 }
 
+fn filter_file(entry: &DirEntry, suffix: &str) -> bool {
+    entry.file_name().to_str()
+        .and_then(|s| Some(s.starts_with(".") || s.starts_with("#") || !s.ends_with(suffix)))
+        .unwrap_or(false)
+}
+
 impl HandlebarsEngine {
     pub fn reload(&self) {
         let mut hbs = self.registry.write().unwrap();
+        match current_dir()  {
+            Ok(current_path) => {
+                let mut prefix_path = PathBuf::from(current_path);
+                prefix_path.push(self.prefix.clone());
+                let template_path = prefix_path.as_path();
 
-        let mut prefix = self.prefix.clone();
-        if !prefix.ends_with('/') {
-            prefix.push('/');
-        }
-        let normalized_prefix = prefix;
+                info!("Loading templates from path {}", template_path.display());
+                let walker = WalkDir::new(template_path);
 
-        let prefix_path = Path::new(&normalized_prefix);
-        let walker = Walker::new(prefix_path).ok().expect(
-            &format!("Failed to list directory: {}", normalized_prefix));
-
-        hbs.clear_templates();
-        let suffix = &self.suffix;
-        for p in walker.filter_map(Result::ok) {
-            let path = p.path();
-            let disp = path.to_str().unwrap();
-            if disp.ends_with(suffix) {
-                let tpl_name = &disp[normalized_prefix.len() .. disp.len()-suffix.len()];
-                if !is_temp_file(tpl_name) {
+                hbs.clear_templates();
+                let suffix = &self.suffix;
+                let prefix_len = template_path.as_os_str().to_str().unwrap().len();
+                for p in walker.min_depth(1).into_iter().filter(|e| e.is_ok() && !filter_file(e.as_ref().unwrap(), suffix)).map(|e| e.unwrap()) {
+                    let path = p.path();
+                    let disp = path.to_str().unwrap();
+                    debug!("getting file {}", disp);
+                    let tpl_name = &disp[prefix_len .. disp.len()-suffix.len()];
                     if let Some(tpl) = read_file(&path) {
                         if let Err(e) = hbs.register_template_string(tpl_name, tpl){
                             warn!("Failed to parse template {}, {}", tpl_name, e);
+                        } else {
+                            info!("Added template {}", tpl_name);
                         }
                     }
                 }
+            },
+            Err(e) => {
+                error!("Failed to get current directory due to {}", e);
             }
         }
     }
@@ -119,7 +125,7 @@ impl HandlebarsEngine {
     }
 
     pub fn new(prefix: &str, suffix: &str) -> HandlebarsEngine {
-        HandlebarsEngine::from(prefix,suffix, Handlebars::new())
+        HandlebarsEngine::from(prefix, suffix, Handlebars::new())
     }
 }
 

@@ -19,7 +19,7 @@ extern crate iron;
 extern crate rustc_serialize as serialize;
 extern crate handlebars;
 extern crate plugin;
-extern crate walker;
+extern crate walkdir;
 #[cfg(feature = "watch")]
 extern crate notify;
 

@@ -17,9 +17,9 @@ iron = "^0.2.0"
 handlebars = "^0.10.1"
 rustc-serialize = "^0.3.15"
 plugin = "^0.2.6"
-walker = "^1.0"
 notify = { version = "^2.3", optional = true }
 log = "^0.3"
+walkdir = "^0.1"
 
 [features]
 default = []
