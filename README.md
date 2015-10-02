@@ -42,7 +42,7 @@ fn hello_world(_: &mut Request) -> IronResult<Response> {
 
 Since this is simple library, you may run this
 [example](https://github.com/sunng87/handlebars-iron/blob/master/examples/server.rs)
-with `cargo run --example server`
+with `RUST_LOG=handlebars_iron=info cargo run --example server`
 first, and  [documentation](http://sunng.info/handlebars-iron/)
 then.
 
@@ -79,7 +79,11 @@ handlebars-iron = "*"
 ```
 
 Check `examples/watch_server.rs` for further information. To test it:
-`cargo run --example watch_server --features watch`.
+`RUST_LOG=handlebars_iron=info cargo run --example watch_server
+--features watch`.
+
+There is a known issue that live reloading will [break when editing
+files with Emacs](https://github.com/passcod/rsnotify/issues/21).
 
 ## License
 
