@@ -1,7 +1,3 @@
-use std::fs::File;
-use std::env::current_dir;
-use std::path::{Path, PathBuf};
-use std::io::prelude::*;
 use std::sync::RwLock;
 use std::error::Error;
 
@@ -11,10 +7,11 @@ use iron::{AfterMiddleware, typemap};
 use iron::modifier::Modifier;
 use plugin::Plugin as PluginFor;
 use iron::headers::ContentType;
-use walkdir::{WalkDir, DirEntry};
 
 use handlebars::Handlebars;
 use serialize::json::{ToJson, Json};
+
+use ::source::{Source, SourceError};
 
 #[derive(Clone)]
 pub struct Template {
@@ -32,8 +29,7 @@ impl Template {
 }
 
 pub struct HandlebarsEngine {
-    pub prefix: String,
-    pub suffix: String,
+    pub sources: Vec<Box<Source + Send + Sync>>,
     pub registry: RwLock<Box<Handlebars>>
 }
 
@@ -58,74 +54,32 @@ impl PluginFor<Response> for HandlebarsEngine {
     }
 }
 
-fn read_file(path: &Path) -> Option<String> {
-    if let Ok(mut file) = File::open(path) {
-        let mut buf = String::new();
-        if file.read_to_string(&mut buf).is_ok() {
-            Some(buf)
-        } else {
-            info!("Failed to read file {}, skipped", path.display());
-            None
-        }
-    } else {
-        info!("Failed to open file {}, skipped.", path.display());
-        None
-    }
-}
-
-fn filter_file(entry: &DirEntry, suffix: &str) -> bool {
-    entry.file_name().to_str()
-        .and_then(|s| Some(s.starts_with(".") || s.starts_with("#") || !s.ends_with(suffix)))
-        .unwrap_or(false)
-}
 
 impl HandlebarsEngine {
-    pub fn reload(&self) {
-        let mut hbs = self.registry.write().unwrap();
-        match current_dir()  {
-            Ok(current_path) => {
-                let mut prefix_path = PathBuf::from(current_path);
-                prefix_path.push(self.prefix.clone());
-                let template_path = prefix_path.as_path();
-
-                info!("Loading templates from path {}", template_path.display());
-                let walker = WalkDir::new(template_path);
-
-                hbs.clear_templates();
-                let suffix = &self.suffix;
-                let prefix_len = template_path.as_os_str().to_str().unwrap().len();
-                for p in walker.min_depth(1).into_iter().filter(|e| e.is_ok() && !filter_file(e.as_ref().unwrap(), suffix)).map(|e| e.unwrap()) {
-                    let path = p.path();
-                    let disp = path.to_str().unwrap();
-                    debug!("getting file {}", disp);
-                    let tpl_name = &disp[prefix_len .. disp.len()-suffix.len()];
-                    if let Some(tpl) = read_file(&path) {
-                        if let Err(e) = hbs.register_template_string(tpl_name, tpl){
-                            warn!("Failed to parse template {}, {}", tpl_name, e);
-                        } else {
-                            info!("Added template {}", tpl_name);
-                        }
-                    }
-                }
-            },
-            Err(e) => {
-                error!("Failed to get current directory due to {}", e);
-            }
+    pub fn new() -> HandlebarsEngine {
+        HandlebarsEngine {
+            sources: Vec::new(),
+            registry: RwLock::new(Box::new(Handlebars::new()))
         }
     }
 
-    pub fn from(prefix: &str, suffix: &str, custom: Handlebars) -> HandlebarsEngine {
-        let eng = HandlebarsEngine {
-            prefix: prefix.to_string(),
-            suffix: suffix.to_string(),
-            registry: RwLock::new(Box::new(custom))
-        };
-        eng.reload();
-        eng
+    pub fn of(reg: Handlebars) -> HandlebarsEngine {
+        HandlebarsEngine {
+            sources: Vec::new(),
+            registry: RwLock::new(Box::new(reg))
+        }
     }
 
-    pub fn new(prefix: &str, suffix: &str) -> HandlebarsEngine {
-        HandlebarsEngine::from(prefix, suffix, Handlebars::new())
+    pub fn add(&mut self, source: Box<Source + Send + Sync>) {
+        self.sources.push(source);
+    }
+
+    pub fn reload(&self) -> Result<(), SourceError> {
+        let mut hbs = self.registry.write().unwrap();
+        for s in self.sources.iter() {
+            try!(s.load(&mut hbs))
+        }
+        Ok(())
     }
 }
 
@@ -197,7 +151,7 @@ mod test {
 
     #[test]
     fn test_register_helper() {
-        let hbs = HandlebarsEngine::new("./examples/templates", ".hbs");
+        let hbs = HandlebarsEngine::new();
         let mut reg = hbs.registry.write().unwrap();
         reg.register_helper("ignore", Box::new(|_: &Context, _: &Helper, _: &Handlebars, _: &mut RenderContext| -> Result<(), RenderError> {
             Ok(())

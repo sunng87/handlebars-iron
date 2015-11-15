@@ -5,7 +5,7 @@ extern crate rustc_serialize;
 
 use iron::prelude::*;
 use iron::{status};
-use hbs::{Template, HandlebarsEngine};
+use hbs::{Template, HandlebarsEngine, DirectorySource};
 use rustc_serialize::json::{ToJson, Json};
 use std::collections::BTreeMap;
 
@@ -54,7 +54,11 @@ fn main() {
     env_logger::init().unwrap();
 
     let mut chain = Chain::new(hello_world);
-    chain.link_after(HandlebarsEngine::new("./examples/templates/", ".hbs"));
+    let mut hbse = HandlebarsEngine::new();
+    hbse.add(Box::new(DirectorySource::new("./examples/templates/", ".hbs")));
+    hbse.reload();
+
+    chain.link_after(hbse);
     println!("Server running at http://localhost:3000/");
     Iron::new(chain).http("localhost:3000").unwrap();
 }
