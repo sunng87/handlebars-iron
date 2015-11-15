@@ -29,7 +29,7 @@ extern crate log;
 pub use self::middleware::Template;
 pub use self::middleware::HandlebarsEngine;
 pub use self::source::{Source, SourceError};
-pub use self::sources::DirectorySource;
+pub use self::sources::{DirectorySource, MemorySource};
 #[cfg(feature = "watch")]
 pub use self::watch::Watchable;
 
