@@ -76,6 +76,7 @@ impl HandlebarsEngine {
 
     pub fn reload(&self) -> Result<(), SourceError> {
         let mut hbs = self.registry.write().unwrap();
+        hbs.clear_templates();
         for s in self.sources.iter() {
             try!(s.load(&mut hbs))
         }
