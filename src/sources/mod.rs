@@ -1,5 +1,2 @@
-pub use self::directory::DirectorySource;
-pub use self::memory::MemorySource;
-
-mod directory;
-mod memory;
+pub mod directory;
+pub mod memory;
