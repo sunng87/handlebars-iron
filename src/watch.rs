@@ -15,16 +15,16 @@ fn _watch (p: &Path) -> Result<(), Error>{
 }
 
 pub trait Watchable {
-    fn watch(&self);
+    fn watch(&self, path: &str);
 }
 
 impl Watchable for Arc<HandlebarsEngine> {
-    fn watch (&self) {
+    fn watch (&self, path: &str) {
         let hbs = self.clone();
+        let watch_path = path.to_owned();
         thread::spawn(move || {
-            info!("watching path: {}", hbs.prefix);
-            let prefix = hbs.prefix.clone();
-            let path = Path::new(&prefix);
+            info!("watching path: {}", watch_path);
+            let path = Path::new(&watch_path);
             loop {
                 match _watch(&path) {
                     Ok(_) => {
