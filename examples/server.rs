@@ -54,7 +54,7 @@ fn main() {
     env_logger::init().unwrap();
 
     let mut chain = Chain::new(hello_world);
-    let mut hbse = HandlebarsEngine::new();
+    let mut hbse = HandlebarsEngine::new2();
     hbse.add(Box::new(DirectorySource::new("./examples/templates/", ".hbs")));
     hbse.reload();
 

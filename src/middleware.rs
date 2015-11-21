@@ -12,6 +12,7 @@ use handlebars::Handlebars;
 use serialize::json::{ToJson, Json};
 
 use ::source::{Source, SourceError};
+use ::sources::directory::{DirectorySource};
 
 #[derive(Clone)]
 pub struct Template {
@@ -56,7 +57,22 @@ impl PluginFor<Response> for HandlebarsEngine {
 
 
 impl HandlebarsEngine {
-    pub fn new() -> HandlebarsEngine {
+    /// #[Deprecated], for backward compaitibility only
+    pub fn new(prefix: &str, suffix: &str) -> HandlebarsEngine {
+        let mut hbs = HandlebarsEngine::new2();
+        hbs.add(Box::new(DirectorySource::new(prefix, suffix)));
+        hbs.reload();
+        hbs
+    }
+
+    pub fn from(prefix: &str, suffix: &str, custom: Handlebars) -> HandlebarsEngine {
+        let mut hbs = HandlebarsEngine::of(custom);
+        hbs.add(Box::new(DirectorySource::new(prefix, suffix)));
+        hbs.reload();
+        hbs
+    }
+
+    pub fn new2() -> HandlebarsEngine {
         HandlebarsEngine {
             sources: Vec::new(),
             registry: RwLock::new(Box::new(Handlebars::new()))
@@ -74,6 +90,7 @@ impl HandlebarsEngine {
         self.sources.push(source);
     }
 
+    #[allow(unused_must_use)]
     pub fn reload(&self) -> Result<(), SourceError> {
         let mut hbs = self.registry.write().unwrap();
         hbs.clear_templates();
@@ -152,7 +169,7 @@ mod test {
 
     #[test]
     fn test_register_helper() {
-        let hbs = HandlebarsEngine::new();
+        let hbs = HandlebarsEngine::new2();
         let mut reg = hbs.registry.write().unwrap();
         reg.register_helper("ignore", Box::new(|_: &Context, _: &Helper, _: &Handlebars, _: &mut RenderContext| -> Result<(), RenderError> {
             Ok(())
