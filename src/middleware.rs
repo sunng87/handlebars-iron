@@ -65,8 +65,9 @@ impl HandlebarsEngine {
         hbs
     }
 
+    /// #[Deprecated], for backward compaitibility only
     pub fn from(prefix: &str, suffix: &str, custom: Handlebars) -> HandlebarsEngine {
-        let mut hbs = HandlebarsEngine::of(custom);
+        let mut hbs = HandlebarsEngine::from2(custom);
         hbs.add(Box::new(DirectorySource::new(prefix, suffix)));
         hbs.reload();
         hbs
@@ -79,7 +80,7 @@ impl HandlebarsEngine {
         }
     }
 
-    pub fn of(reg: Handlebars) -> HandlebarsEngine {
+    pub fn from2(reg: Handlebars) -> HandlebarsEngine {
         HandlebarsEngine {
             sources: Vec::new(),
             registry: RwLock::new(Box::new(reg))
