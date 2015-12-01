@@ -1,5 +1,6 @@
 extern crate handlebars_iron as hbsi;
 
+use std::error::Error;
 use hbsi::{HandlebarsEngine, DirectorySource};
 
 #[test]
@@ -8,7 +9,11 @@ fn test_template() {
     let src = Box::new(DirectorySource::new("./examples/templates/", ".hbs"));
 
     hbse.add(src);
-    hbse.reload();
+
+    // success of panic
+    if let Err(r) = hbse.reload() {
+        panic!("{}", r.description());
+    }
 
     let hh = hbse.registry.read().unwrap();
 

@@ -61,16 +61,24 @@ impl HandlebarsEngine {
     pub fn new(prefix: &str, suffix: &str) -> HandlebarsEngine {
         let mut hbs = HandlebarsEngine::new2();
         hbs.add(Box::new(DirectorySource::new(prefix, suffix)));
-        hbs.reload();
-        hbs
+        match hbs.reload() {
+            Ok(_) => hbs,
+            Err(e) => {
+                panic!("Failed to init from directory: {}", e.description())
+            }
+        }
     }
 
     /// #[Deprecated], for backward compaitibility only
     pub fn from(prefix: &str, suffix: &str, custom: Handlebars) -> HandlebarsEngine {
         let mut hbs = HandlebarsEngine::from2(custom);
         hbs.add(Box::new(DirectorySource::new(prefix, suffix)));
-        hbs.reload();
-        hbs
+        match hbs.reload() {
+            Ok(_) => hbs,
+            Err(e) => {
+                panic!("Failed to init from directory: {}", e.description())
+            }
+        }
     }
 
     pub fn new2() -> HandlebarsEngine {
@@ -91,7 +99,6 @@ impl HandlebarsEngine {
         self.sources.push(source);
     }
 
-    #[allow(unused_must_use)]
     pub fn reload(&self) -> Result<(), SourceError> {
         let mut hbs = self.registry.write().unwrap();
         hbs.clear_templates();

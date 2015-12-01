@@ -64,7 +64,9 @@ fn main() {
     let mut hbse = HandlebarsEngine::new2();
     let source = Box::new(DirectorySource::new("./examples/templates/", ".hbs"));
     hbse.add(source);
-    hbse.reload();
+    if let Err(r) = hbse.reload() {
+        panic!("{}", r.description());
+    }
 
     let hbse_ref = Arc::new(hbse);
     hbse_ref.watch("./examples/templates/");

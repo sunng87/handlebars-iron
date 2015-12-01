@@ -29,7 +29,11 @@ fn main() {
     let mut chain = Chain::new(hello_world);
     let mut hbse = HandlebarsEngine::new2();
     hbse.add(Box::new(DirectorySource::new("./examples/templates/", ".hbs")));
-    hbse.reload();
+    // success of panic
+    if let Err(r) = hbse.reload() {
+        panic!("{}", r.description());
+    }
+
 
     chain.link_after(hbse);
     chain.link_after(ErrorReporter);
