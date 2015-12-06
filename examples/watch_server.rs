@@ -10,8 +10,10 @@ use hbs::{Template, HandlebarsEngine, DirectorySource};
 #[cfg(feature = "watch")]
 use hbs::Watchable;
 use rustc_serialize::json::{ToJson, Json};
+
 use std::collections::BTreeMap;
 use std::sync::Arc;
+use std::error::Error;
 
 
 struct Team {

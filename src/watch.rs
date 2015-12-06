@@ -29,7 +29,9 @@ impl Watchable for Arc<HandlebarsEngine> {
                 match _watch(&path) {
                     Ok(_) => {
                         info!("Template directory changed");
-                        hbs.reload();
+                        if let Err(e) = hbs.reload() {
+                            error!("Failed to reload directory: {:?}", e);
+                        }
                     },
                     Err(e) => {
                         warn!("Failed to watch directory: {:?}", e);
