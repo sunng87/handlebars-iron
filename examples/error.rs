@@ -5,7 +5,7 @@ extern crate rustc_serialize;
 use std::error::Error;
 use iron::prelude::*;
 use iron::{status, AfterMiddleware};
-use hbs::{Template, HandlebarsEngine};
+use hbs::{Template, HandlebarsEngine, DirectorySource};
 
 /// the handler
 fn hello_world(_: &mut Request) -> IronResult<Response> {
@@ -27,7 +27,15 @@ impl AfterMiddleware for ErrorReporter {
 
 fn main() {
     let mut chain = Chain::new(hello_world);
-    chain.link_after(HandlebarsEngine::new("./examples/templates/", ".hbs"));
+    let mut hbse = HandlebarsEngine::new2();
+    hbse.add(Box::new(DirectorySource::new("./examples/templates/", ".hbs")));
+    // success of panic
+    if let Err(r) = hbse.reload() {
+        panic!("{}", r.description());
+    }
+
+
+    chain.link_after(hbse);
     chain.link_after(ErrorReporter);
     println!("Server running at http://localhost:3000/");
     Iron::new(chain).http("localhost:3000").unwrap();
