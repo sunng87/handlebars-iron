@@ -26,12 +26,16 @@ extern crate notify;
 #[macro_use]
 extern crate log;
 
-
 pub use self::middleware::Template;
 pub use self::middleware::HandlebarsEngine;
+pub use self::source::{Source, SourceError};
+pub use self::sources::directory::DirectorySource;
+pub use self::sources::memory::MemorySource;
 #[cfg(feature = "watch")]
 pub use self::watch::Watchable;
 
 mod middleware;
 #[cfg(feature = "watch")]
 mod watch;
+mod source;
+mod sources;

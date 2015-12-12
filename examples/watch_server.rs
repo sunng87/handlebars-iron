@@ -6,12 +6,14 @@ extern crate env_logger;
 
 use iron::prelude::*;
 use iron::{status};
-use hbs::{Template, HandlebarsEngine};
+use hbs::{Template, HandlebarsEngine, DirectorySource};
 #[cfg(feature = "watch")]
 use hbs::Watchable;
 use rustc_serialize::json::{ToJson, Json};
+
 use std::collections::BTreeMap;
 use std::sync::Arc;
+use std::error::Error;
 
 
 struct Team {
@@ -60,10 +62,18 @@ fn main() {
     env_logger::init().unwrap();
 
     let mut chain = Chain::new(hello_world);
-    let template_engine_ref = Arc::new(HandlebarsEngine::new("./examples/templates/", ".hbs"));
-    template_engine_ref.watch();
 
-    chain.link_after(template_engine_ref);
+    let mut hbse = HandlebarsEngine::new2();
+    let source = Box::new(DirectorySource::new("./examples/templates/", ".hbs"));
+    hbse.add(source);
+    if let Err(r) = hbse.reload() {
+        panic!("{}", r.description());
+    }
+
+    let hbse_ref = Arc::new(hbse);
+    hbse_ref.watch("./examples/templates/");
+
+    chain.link_after(hbse_ref);
 
     println!("Server running at http://localhost:3000/");
     Iron::new(chain).http("localhost:3000").unwrap();
