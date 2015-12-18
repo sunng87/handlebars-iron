@@ -58,6 +58,7 @@ impl PluginFor<Response> for HandlebarsEngine {
 
 impl HandlebarsEngine {
     /// #[Deprecated], for backward compaitibility only
+    #[deprecated(since = "0.10.0", reason = "Use source API and new2 instead")]
     pub fn new(prefix: &str, suffix: &str) -> HandlebarsEngine {
         let mut hbs = HandlebarsEngine::new2();
         hbs.add(Box::new(DirectorySource::new(prefix, suffix)));
@@ -70,6 +71,7 @@ impl HandlebarsEngine {
     }
 
     /// #[Deprecated], for backward compaitibility only
+    #[deprecated(since = "0.10.0", reason = "Use source API and from2 instead")]
     pub fn from(prefix: &str, suffix: &str, custom: Handlebars) -> HandlebarsEngine {
         let mut hbs = HandlebarsEngine::from2(custom);
         hbs.add(Box::new(DirectorySource::new(prefix, suffix)));
