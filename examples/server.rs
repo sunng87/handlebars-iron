@@ -65,13 +65,17 @@ fn main() {
 
     let mut chain = Chain::new(hello_world);
     let mut hbse = HandlebarsEngine::new2();
+
+    // add a directory source, all files with .hbs suffix will be loaded as template
     hbse.add(Box::new(DirectorySource::new("./examples/templates/", ".hbs")));
 
     let mem_templates = btreemap! {
         "memory".to_owned() => "<h1>Memory Template</h1>".to_owned()
     };
+    // add a memory based source
     hbse.add(Box::new(MemorySource(mem_templates)));
 
+    // load templates from all registered sources
     if let Err(r) = hbse.reload() {
         panic!("{}", r.description());
     }
