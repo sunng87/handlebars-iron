@@ -27,3 +27,4 @@ watch = ["notify"]
 
 [dev-dependencies]
 env_logger = "*"
+maplit = "*"

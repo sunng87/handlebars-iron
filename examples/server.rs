@@ -2,13 +2,15 @@ extern crate iron;
 extern crate env_logger;
 extern crate handlebars_iron as hbs;
 extern crate rustc_serialize;
+#[macro_use]
+extern crate maplit;
 
 use std::error::Error;
 use std::collections::BTreeMap;
 
 use iron::prelude::*;
 use iron::{status};
-use hbs::{Template, HandlebarsEngine, DirectorySource};
+use hbs::{Template, HandlebarsEngine, DirectorySource, MemorySource};
 use rustc_serialize::json::{ToJson, Json};
 
 struct Team {
@@ -44,11 +46,17 @@ fn make_data () -> BTreeMap<String, Json> {
 }
 
 /// the handler
-fn hello_world(_: &mut Request) -> IronResult<Response> {
+fn hello_world(req: &mut Request) -> IronResult<Response> {
     let mut resp = Response::new();
 
-    let data = make_data();
-    resp.set_mut(Template::new("index", data)).set_mut(status::Ok);
+    // open http://localhost:3000/
+    if req.url.path.iter().filter(|s| s.len() > 0).count() == 0 {
+        let data = make_data();
+        resp.set_mut(Template::new("index", data)).set_mut(status::Ok);
+    } else {
+        // open http://localhost:3000/abc
+        resp.set_mut(Template::new("memory", ())).set_mut(status::Ok);
+    }
     Ok(resp)
 }
 
@@ -58,6 +66,12 @@ fn main() {
     let mut chain = Chain::new(hello_world);
     let mut hbse = HandlebarsEngine::new2();
     hbse.add(Box::new(DirectorySource::new("./examples/templates/", ".hbs")));
+
+    let mem_templates = btreemap! {
+        "memory".to_owned() => "<h1>Memory Template</h1>".to_owned()
+    };
+    hbse.add(Box::new(MemorySource(mem_templates)));
+
     if let Err(r) = hbse.reload() {
         panic!("{}", r.description());
     }
