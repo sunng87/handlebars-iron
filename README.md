@@ -19,7 +19,15 @@ middleware.
 
 ```rust
   /// HandlebarsEngine will look up all files with "./examples/templates/**/*.hbs"
-  chain.link_after(HandlebarsEngine::new("./examples/templates/", ".hbs"));
+  let mut hbse = HandlebarsEngine::new2();
+  hbse.add(Box::new(DirectorySource::new("./examples/templates/", ".hbs")));
+
+  // load templates from all registered sources
+  if let Err(r) = hbse.reload() {
+    panic!("{}", r.description());
+  }
+
+  chain.link_after(hbse);
 ```
 
 In your handler, set `Template` to response. As required by
