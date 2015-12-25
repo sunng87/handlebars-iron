@@ -38,7 +38,7 @@ fn read_file(path: &Path) -> Option<String> {
 
 fn filter_file(entry: &DirEntry, suffix: &str) -> bool {
     entry.file_name().to_str()
-        .and_then(|s| Some(s.starts_with(".") || s.starts_with("#") || !s.ends_with(suffix)))
+        .map(|s| s.starts_with(".") || s.starts_with("#") || !s.ends_with(suffix))
         .unwrap_or(false)
 }
 
