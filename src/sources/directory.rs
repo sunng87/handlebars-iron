@@ -2,21 +2,20 @@ use ::source::{Source, SourceError};
 
 use std::io::prelude::*;
 use std::fs::File;
-use std::env::current_dir;
 use std::path::{Path, PathBuf};
 
 use handlebars::Handlebars;
 use walkdir::{WalkDir, DirEntry};
 
 pub struct DirectorySource {
-    pub prefix: String,
+    pub prefix: PathBuf,
     pub suffix: String
 }
 
 impl DirectorySource {
     pub fn new(prefix: &str, suffix: &str) -> DirectorySource {
         DirectorySource {
-            prefix: prefix.to_owned(),
+            prefix: PathBuf::from(prefix),
             suffix: suffix.to_owned()
         }
     }
@@ -45,35 +44,23 @@ fn filter_file(entry: &DirEntry, suffix: &str) -> bool {
 
 impl Source for DirectorySource {
     fn load(&self, reg: &mut Handlebars) -> Result<(), SourceError> {
-        match current_dir() {
-            Ok(current_path) => {
-                let mut prefix_path = PathBuf::from(current_path);
-                prefix_path.push(self.prefix.clone());
-                let template_path = prefix_path.as_path();
+        let suffix_len = self.suffix.len();
 
-                info!("Loading templates from path {}", template_path.display());
-                let walker = WalkDir::new(template_path);
-
-                let suffix = &self.suffix;
-                let prefix_len = template_path.as_os_str().to_str().unwrap().len();
-                for p in walker.min_depth(1).into_iter().filter(|e| e.is_ok() && !filter_file(e.as_ref().unwrap(), suffix)).map(|e| e.unwrap()) {
-                    let path = p.path();
-                    let disp = path.to_str().unwrap();
-                    debug!("getting file {}", disp);
-                    let tpl_name = &disp[prefix_len .. disp.len()-suffix.len()];
-                    if let Some(tpl) = read_file(&path) {
-                        if let Err(e) = reg.register_template_string(tpl_name, tpl){
-                            warn!("Failed to parse template {}, {}", tpl_name, e);
-                        } else {
-                            info!("Added template {}", tpl_name);
-                        }
-                    }
+        info!("Loading templates from path {}", self.prefix.display());
+        let walker = WalkDir::new(&self.prefix);
+        for p in walker.min_depth(1).into_iter().filter(|e| e.is_ok() && !filter_file(e.as_ref().unwrap(), &self.suffix)).map(|e| e.unwrap()) {
+            let tpl_file = p.file_name().to_string_lossy();
+            let tpl_name = &tpl_file[0 .. tpl_file.len() - suffix_len];
+            debug!("getting file {}", tpl_file);
+            let tpl_path = p.path();
+            if let Some(tpl) = read_file(tpl_path) {
+                if let Err(e) = reg.register_template_string(&tpl_name, tpl){
+                    warn!("Failed to parse template {}, {}", tpl_name, e);
+                } else {
+                    info!("Added template {}", tpl_name);
                 }
-                Ok(())
-            },
-            Err(e) => {
-                Err(SourceError{ cause: Box::new(e) })
             }
         }
+        Ok(())
     }
 }
