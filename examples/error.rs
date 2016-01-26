@@ -1,6 +1,5 @@
 extern crate iron;
 extern crate handlebars_iron as hbs;
-extern crate rustc_serialize;
 
 use std::error::Error;
 use iron::prelude::*;
