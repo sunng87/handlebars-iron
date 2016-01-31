@@ -9,7 +9,12 @@ use plugin::Plugin as PluginFor;
 use iron::headers::ContentType;
 
 use handlebars::Handlebars;
+#[cfg(not(feature = "serde_type"))]
 use serialize::json::{ToJson, Json};
+#[cfg(feature = "serde_type")]
+use serde::ser::Serialize as ToJson;
+#[cfg(feature = "serde_type")]
+use serde_json::value::{self, Value as Json};
 
 use ::source::{Source, SourceError};
 use ::sources::directory::{DirectorySource};
@@ -20,11 +25,22 @@ pub struct Template {
     value: Json
 }
 
+#[cfg(not(feature = "serde_type"))]
 impl Template {
     pub fn new<T: ToJson>(name: &str, value: T) -> Template {
         Template {
             name: name.to_string(),
             value: value.to_json()
+        }
+    }
+}
+
+#[cfg(feature = "serde_type")]
+impl Template {
+    pub fn new<T: ToJson>(name: &str, value: T) -> Template {
+        Template {
+            name: name.to_string(),
+            value: value::to_value(&value)
         }
     }
 }
@@ -143,7 +159,6 @@ impl AfterMiddleware for HandlebarsEngine {
 
 #[cfg(test)]
 mod test {
-    use serialize::json::ToJson;
     use std::collections::BTreeMap;
     use iron::prelude::*;
     use middleware::*;
@@ -153,7 +168,7 @@ mod test {
         let resp = Response::new();
 
         let mut data = BTreeMap::new();
-        data.insert("title".to_string(), "Handlebars on Iron".to_json());
+        data.insert("title".to_owned(), "Handlebars on Iron".to_owned());
 
         Ok(resp.set(Template::new("index", data)))
     }

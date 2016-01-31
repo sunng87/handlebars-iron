@@ -1,52 +1,98 @@
+#![cfg_attr(all(feature="serde_type"), feature(custom_derive, plugin))]
+#![cfg_attr(all(feature="serde_type"), plugin(serde_macros))]
+
 extern crate iron;
 extern crate env_logger;
 extern crate handlebars_iron as hbs;
+#[cfg(not(feature = "serde_type"))]
 extern crate rustc_serialize;
+#[cfg(feature = "serde_type")]
+extern crate serde;
+#[cfg(feature = "serde_type")]
+extern crate serde_json;
 #[macro_use]
 extern crate maplit;
 
 use std::error::Error;
-use std::collections::BTreeMap;
 
 use iron::prelude::*;
 use iron::{status};
 use hbs::{Template, HandlebarsEngine, DirectorySource, MemorySource};
-use rustc_serialize::json::{ToJson, Json};
 
-struct Team {
-    name: String,
-    pts: u16
-}
+#[cfg(not(feature = "serde_type"))]
+mod data {
+    use rustc_serialize::json::{ToJson, Json};
+    use std::collections::BTreeMap;
 
-impl ToJson for Team {
-    fn to_json(&self) -> Json {
-        let mut m: BTreeMap<String, Json> = BTreeMap::new();
-        m.insert("name".to_string(), self.name.to_json());
-        m.insert("pts".to_string(), self.pts.to_json());
-        m.to_json()
+    pub struct Team {
+        name: String,
+        pts: u16
+    }
+
+    impl ToJson for Team {
+        fn to_json(&self) -> Json {
+            let mut m: BTreeMap<String, Json> = BTreeMap::new();
+            m.insert("name".to_string(), self.name.to_json());
+            m.insert("pts".to_string(), self.pts.to_json());
+            m.to_json()
+        }
+    }
+
+    pub fn make_data () -> BTreeMap<String, Json> {
+        let mut data = BTreeMap::new();
+
+        data.insert("year".to_string(), "2015".to_json());
+
+        let teams = vec![ Team { name: "Jiangsu Sainty".to_string(),
+                                 pts: 43u16 },
+                          Team { name: "Beijing Guoan".to_string(),
+                                 pts: 27u16 },
+                          Team { name: "Guangzhou Evergrand".to_string(),
+                                 pts: 22u16 },
+                          Team { name: "Shandong Luneng".to_string(),
+                                 pts: 12u16 } ];
+
+        data.insert("teams".to_string(), teams.to_json());
+        data.insert("engine".to_string(), "rustc_serialize".to_json());
+        data
     }
 }
 
-fn make_data () -> BTreeMap<String, Json> {
-    let mut data = BTreeMap::new();
+#[cfg(feature = "serde_type")]
+mod data {
+    use serde_json::value::{self, Value};
+    use std::collections::BTreeMap;
 
-    data.insert("year".to_string(), "2015".to_json());
+    #[derive(Serialize, Debug)]
+    pub struct Team {
+        name: String,
+        pts: u16
+    }
 
-    let teams = vec![ Team { name: "Jiangsu Sainty".to_string(),
-                             pts: 43u16 },
-                      Team { name: "Beijing Guoan".to_string(),
-                             pts: 27u16 },
-                      Team { name: "Guangzhou Evergrand".to_string(),
-                             pts: 22u16 },
-                      Team { name: "Shandong Luneng".to_string(),
-                             pts: 12u16 } ];
+    pub fn make_data () -> BTreeMap<String, Value> {
+        let mut data = BTreeMap::new();
 
-    data.insert("teams".to_string(), teams.to_json());
-    data
+        data.insert("year".to_string(), value::to_value(&"2015"));
+
+        let teams = vec![ Team { name: "Jiangsu Sainty".to_string(),
+                                 pts: 43u16 },
+                          Team { name: "Beijing Guoan".to_string(),
+                                 pts: 27u16 },
+                          Team { name: "Guangzhou Evergrand".to_string(),
+                                 pts: 22u16 },
+                          Team { name: "Shandong Luneng".to_string(),
+                                 pts: 12u16 } ];
+
+        data.insert("teams".to_string(), value::to_value(&teams));
+        data.insert("engine".to_string(), value::to_value(&"serde_json"));
+        data
+    }
 }
 
 /// the handler
 fn hello_world(req: &mut Request) -> IronResult<Response> {
+    use data::*;
+
     let mut resp = Response::new();
 
     // open http://localhost:3000/
