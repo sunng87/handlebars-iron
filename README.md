@@ -36,6 +36,11 @@ you are on nightly channel, it is highly recommended to use
 [tojson_macros](https://github.com/sunng87/tojson_macros) to generate
 default `ToJson` implementation without repeating yourself.
 
+From 0.11.0, by enabling feature `serde_type`, you can also use
+[serde_json](https://github.com/serde-rs/json) as type
+system. Typically you can annotate your type with
+`#[derive(Serialize)]` to make it work as template data.
+
 ```rust
 /// render data with "index" template
 /// that is "./examples/templates/index.hbs"
@@ -60,7 +65,7 @@ Memory source are supported by default. Previous API
 deprecated in 0.10.0 and will be replaced by `new2` and `from2` in
 future.
 
-Since Rust and its ecosystem are still in early stage, this
+Rust and its ecosystem are still in early stage, this
 project might been broken for various reasons. I will try my best to
 keep this library compiles with latest Rust nightly before the 1.0
 final release. If you find anything bad, pull requests and issue reporting
