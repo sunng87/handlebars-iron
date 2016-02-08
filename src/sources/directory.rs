@@ -1,8 +1,6 @@
 use ::source::{Source, SourceError};
 
-use std::io::prelude::*;
-use std::fs::File;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use handlebars::Handlebars;
 use walkdir::{WalkDir, DirEntry};
@@ -18,21 +16,6 @@ impl DirectorySource {
             prefix: PathBuf::from(prefix),
             suffix: suffix.to_owned()
         }
-    }
-}
-
-fn read_file(path: &Path) -> Option<String> {
-    if let Ok(mut file) = File::open(path) {
-        let mut buf = String::new();
-        if file.read_to_string(&mut buf).is_ok() {
-            Some(buf)
-        } else {
-            info!("Failed to read file {}, skipped", path.display());
-            None
-        }
-    } else {
-        info!("Failed to open file {}, skipped.", path.display());
-        None
     }
 }
 
@@ -53,12 +36,10 @@ impl Source for DirectorySource {
             let tpl_name = &tpl_file[0 .. tpl_file.len() - suffix_len];
             debug!("getting file {}", tpl_file);
             let tpl_path = p.path();
-            if let Some(tpl) = read_file(tpl_path) {
-                if let Err(e) = reg.register_template_string(&tpl_name, tpl){
-                    warn!("Failed to parse template {}, {}", tpl_name, e);
-                } else {
-                    info!("Added template {}", tpl_name);
-                }
+            if let Err(e) = reg.register_template_file(&tpl_name, &tpl_path) {
+                warn!("Failed to parse template {}, {}", tpl_name, e);
+            } else {
+                info!("Added template {}", tpl_name);
             }
         }
         Ok(())
