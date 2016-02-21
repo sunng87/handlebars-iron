@@ -1,4 +1,4 @@
-use handlebars::Handlebars;
+use handlebars::{Handlebars, TemplateError, TemplateFileError};
 use std::error::Error;
 use std::fmt;
 
@@ -20,6 +20,18 @@ impl Error for SourceError {
 
     fn cause(&self) -> Option<&Error> {
         self.cause.cause()
+    }
+}
+
+impl From<TemplateError> for SourceError {
+    fn from(err: TemplateError) -> SourceError {
+        SourceError { cause: Box::new(err) }
+    }
+}
+
+impl From<TemplateFileError> for SourceError {
+    fn from(err: TemplateFileError) -> SourceError {
+        SourceError { cause: Box::new(err) }
     }
 }
 
