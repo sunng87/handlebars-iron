@@ -36,10 +36,11 @@ you are on nightly channel, it is highly recommended to use
 [tojson_macros](https://github.com/sunng87/tojson_macros) to generate
 default `ToJson` implementation without repeating yourself.
 
-From 0.11.0, by enabling feature `serde_type`, you can also use
-[serde_json](https://github.com/serde-rs/json) as type
-system. Typically you can annotate your type with
-`#[derive(Serialize)]` to make it work as template data.
+For `DirectorySource`, handlebars engine will walk the directory
+specified by `prefix`, try to register all templates matches the
+suffix, and extract its name as template name. For instance,
+`./examples/templates/some/path/index.hbs` will be registered as
+`some/path/index`.
 
 ```rust
 /// render data with "index" template
@@ -93,6 +94,17 @@ handlebars-iron = ...
 Check `examples/watch_server.rs` for further information. To test it:
 `RUST_LOG=handlebars_iron=info cargo run --example watch_server
 --features watch`.
+
+## Serde
+
+From 0.11.0, by enabling feature `serde_type`, you can also use
+[serde_json](https://github.com/serde-rs/json) as type
+system. Typically you can annotate your type with
+`#[derive(Serialize)]` to make it work as template data.
+
+You can find an working example in `examples/server.rs` and try to run
+it via: `cargo run --features unstable --example server
+--no-default-features`
 
 ## License
 
