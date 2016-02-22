@@ -36,11 +36,7 @@ impl Source for DirectorySource {
             let tpl_name = &tpl_file[0 .. tpl_file.len() - suffix_len];
             debug!("getting file {}", tpl_file);
             let tpl_path = p.path();
-            if let Err(e) = reg.register_template_file(&tpl_name, &tpl_path) {
-                warn!("Failed to parse template {}, {}", tpl_name, e);
-            } else {
-                info!("Added template {}", tpl_name);
-            }
+            try!(reg.register_template_file(&tpl_name, &tpl_path))
         }
         Ok(())
     }
