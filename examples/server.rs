@@ -2,6 +2,7 @@
 #![cfg_attr(all(feature="serde_type"), plugin(serde_macros))]
 
 extern crate iron;
+extern crate router;
 extern crate env_logger;
 extern crate handlebars_iron as hbs;
 #[cfg(not(feature = "serde_type"))]
@@ -17,6 +18,7 @@ use std::error::Error;
 
 use iron::prelude::*;
 use iron::{status};
+use router::Router;
 use hbs::{Template, HandlebarsEngine, DirectorySource, MemorySource};
 
 #[cfg(not(feature = "serde_type"))]
@@ -89,27 +91,34 @@ mod data {
     }
 }
 
-/// the handler
-fn hello_world(req: &mut Request) -> IronResult<Response> {
+/// the handlers
+fn index(_: &mut Request) -> IronResult<Response> {
     use data::*;
 
     let mut resp = Response::new();
+    let data = make_data();
+    resp.set_mut(Template::new("index", data)).set_mut(status::Ok);
+    Ok(resp)
+}
 
-    // open http://localhost:3000/
-    if req.url.path.iter().filter(|s| s.len() > 0).count() == 0 {
-        let data = make_data();
-        resp.set_mut(Template::new("index", data)).set_mut(status::Ok);
-    } else {
-        // open http://localhost:3000/abc
-        resp.set_mut(Template::new("memory", ())).set_mut(status::Ok);
-    }
+fn memory(_: &mut Request) -> IronResult<Response> {
+    let mut resp = Response::new();
+    resp.set_mut(Template::new("memory", ())).set_mut(status::Ok);
+    Ok(resp)
+}
+
+fn temp(_: &mut Request) -> IronResult<Response> {
+    use data::*;
+
+    let mut resp = Response::new();
+    let data = make_data();
+    resp.set_mut(Template::with("<h1>{{engine}}</h1>", data)).set_mut(status::Ok);
     Ok(resp)
 }
 
 fn main() {
     env_logger::init().unwrap();
 
-    let mut chain = Chain::new(hello_world);
     let mut hbse = HandlebarsEngine::new2();
 
     // add a directory source, all files with .hbs suffix will be loaded as template
@@ -126,6 +135,13 @@ fn main() {
         panic!("{}", r.description());
     }
 
+
+    let mut router = Router::new();
+    router
+        .get("/", index)
+        .get("/mem", memory)
+        .get("/temp", temp);
+    let mut chain = Chain::new(router);
     chain.link_after(hbse);
     println!("Server running at http://localhost:3000/");
     Iron::new(chain).http("localhost:3000").unwrap();
