@@ -8,7 +8,7 @@ use iron::modifier::Modifier;
 use plugin::Plugin as PluginFor;
 use iron::headers::ContentType;
 
-use handlebars::Handlebars;
+use handlebars::{Handlebars, TemplateRenderError};
 #[cfg(not(feature = "serde_type"))]
 use serialize::json::{ToJson, Json};
 #[cfg(feature = "serde_type")]
@@ -21,7 +21,8 @@ use ::sources::directory::{DirectorySource};
 
 #[derive(Clone)]
 pub struct Template {
-    name: String,
+    name: Option<String>,
+    content: Option<String>,
     value: Json
 }
 
@@ -29,8 +30,17 @@ pub struct Template {
 impl Template {
     pub fn new<T: ToJson>(name: &str, value: T) -> Template {
         Template {
-            name: name.to_string(),
-            value: value.to_json()
+            name: Some(name.to_string()),
+            value: value.to_json(),
+            content: None
+        }
+    }
+
+    pub fn with<T: ToJson>(content: &str, value: T) -> Template {
+        Template {
+            name: None,
+            value: value.to_json(),
+            content: Some(content.to_string())
         }
     }
 }
@@ -40,7 +50,16 @@ impl Template {
     pub fn new<T: ToJson>(name: &str, value: T) -> Template {
         Template {
             name: name.to_string(),
-            value: value::to_value(&value)
+            value: value::to_value(&value),
+            content: None
+        }
+    }
+
+    pub fn with<T: ToJson>(content: &str, value: T) -> Template {
+        Template {
+            name: None,
+            value: value::to_value(&value),
+            content: Some(content.to_string())
         }
     }
 }
@@ -131,7 +150,13 @@ impl AfterMiddleware for HandlebarsEngine {
         let page_wrapper = resp.extensions.get::<HandlebarsEngine>().as_ref()
             .and_then(|h| {
                 let hbs = self.registry.read().unwrap();
-                Some(hbs.render(&h.name, &h.value))
+                if let Some(ref name) = h.name {
+                    return Some(hbs.render(name, &h.value).map_err(TemplateRenderError::from));
+                } else if let Some(ref content) = h.content {
+                    return Some(hbs.template_render(content, &h.value));
+                } else {
+                    unreachable!();
+                }
             });
 
         match page_wrapper {
@@ -173,6 +198,15 @@ mod test {
         Ok(resp.set(Template::new("index", data)))
     }
 
+    fn hello_world2() -> IronResult<Response> {
+        let resp = Response::new();
+
+        let mut data = BTreeMap::new();
+        data.insert("title".to_owned(), "Handlebars on Iron".to_owned());
+
+        Ok(resp.set(Template::with("{{title}}", data)))
+    }
+
     #[test]
     fn test_resp_set() {
         let mut resp = hello_world().ok().expect("response expected");
@@ -180,7 +214,7 @@ mod test {
         // use response plugin to retrieve a cloned template for testing
         match resp.get::<HandlebarsEngine>() {
             Ok(h) => {
-                assert_eq!(h.name, "index".to_string());
+                assert_eq!(h.name.unwrap(), "index".to_string());
                 assert_eq!(h.value.as_object().unwrap()
                            .get(&"title".to_string()).unwrap()
                            .as_string().unwrap(),
@@ -189,6 +223,24 @@ mod test {
             _ => panic!("template expected")
         }
     }
+
+    #[test]
+    fn test_resp_set2() {
+        let mut resp = hello_world2().ok().expect("response expected");
+
+        // use response plugin to retrieve a cloned template for testing
+        match resp.get::<HandlebarsEngine>() {
+            Ok(h) => {
+                assert_eq!(h.content.unwrap(), "{{title}}".to_string());
+                assert_eq!(h.value.as_object().unwrap()
+                           .get(&"title".to_string()).unwrap()
+                           .as_string().unwrap(),
+                           "Handlebars on Iron");
+            },
+            _ => panic!("template expected")
+        }
+    }
+
 
     #[test]
     fn test_register_helper() {
