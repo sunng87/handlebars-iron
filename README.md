@@ -54,6 +54,23 @@ fn hello_world(_: &mut Request) -> IronResult<Response> {
 }
 ```
 
+By using `Template::with` You can also render some template without
+actually register it. But this is not recommended because template
+string needs to be parsed every time. Consider using a `MemorySource`
+if possible.
+
+```rust
+/// render data with "index" template
+/// that is "./examples/templates/index.hbs"
+fn hello_world(_: &mut Request) -> IronResult<Response> {
+    let mut resp = Response::new();
+
+    let data = ...
+    resp.set_mut(Template::with("<h1>{{title}}</h1>", data)).set_mut(status::Ok);
+    Ok(resp)
+}
+```
+
 Since this is simple library, you may run this
 [example](https://github.com/sunng87/handlebars-iron/blob/master/examples/server.rs)
 with `RUST_LOG=handlebars_iron=info cargo run --example server`

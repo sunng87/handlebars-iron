@@ -28,6 +28,7 @@ pub struct Template {
 
 #[cfg(not(feature = "serde_type"))]
 impl Template {
+    /// render some template from pre-registered templates
     pub fn new<T: ToJson>(name: &str, value: T) -> Template {
         Template {
             name: Some(name.to_string()),
@@ -36,6 +37,7 @@ impl Template {
         }
     }
 
+    /// render some template with temporary template string
     pub fn with<T: ToJson>(content: &str, value: T) -> Template {
         Template {
             name: None,
@@ -47,6 +49,7 @@ impl Template {
 
 #[cfg(feature = "serde_type")]
 impl Template {
+    /// render some template from pre-registered templates
     pub fn new<T: ToJson>(name: &str, value: T) -> Template {
         Template {
             name: name.to_string(),
@@ -55,6 +58,7 @@ impl Template {
         }
     }
 
+    /// render some template with temporary template string
     pub fn with<T: ToJson>(content: &str, value: T) -> Template {
         Template {
             name: None,
