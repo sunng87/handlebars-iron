@@ -52,7 +52,7 @@ impl Template {
     /// render some template from pre-registered templates
     pub fn new<T: ToJson>(name: &str, value: T) -> Template {
         Template {
-            name: name.to_string(),
+            name: Some(name.to_string()),
             value: value::to_value(&value),
             content: None
         }
