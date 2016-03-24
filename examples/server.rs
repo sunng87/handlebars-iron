@@ -97,7 +97,7 @@ fn index(_: &mut Request) -> IronResult<Response> {
 
     let mut resp = Response::new();
     let data = make_data();
-    resp.set_mut(Template::new("index", data)).set_mut(status::Ok);
+    resp.set_mut(Template::new("some/path/hello", data)).set_mut(status::Ok);
     Ok(resp)
 }
 

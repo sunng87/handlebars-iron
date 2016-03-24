@@ -18,6 +18,7 @@ fn test_template() {
     let hh = hbse.registry.read().unwrap();
 
     assert!(hh.get_template("index").is_some());
+    assert!(hh.get_template("some/path/hello").is_some());
 }
 
 #[test]
@@ -35,4 +36,5 @@ fn test_template2() {
     let hh = hbse.registry.read().unwrap();
 
     assert!(hh.get_template("index").is_some());
+    assert!(hh.get_template("some/path/hello").is_some());
 }
