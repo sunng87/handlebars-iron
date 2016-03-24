@@ -32,10 +32,10 @@ impl Source for DirectorySource {
         info!("Loading templates from path {}", self.prefix.display());
         let walker = WalkDir::new(&self.prefix);
         for p in walker.min_depth(1).into_iter().filter(|e| e.is_ok() && !filter_file(e.as_ref().unwrap(), &self.suffix)).map(|e| e.unwrap()) {
-            let tpl_file = p.file_name().to_string_lossy();
-            let tpl_name = &tpl_file[0 .. tpl_file.len() - suffix_len];
-            debug!("getting file {}", tpl_file);
             let tpl_path = p.path();
+            let tpl_name = tpl_path.strip_prefix(&self.prefix);
+            let tpl_name = &tpl_name[0 .. tpl_name.len() - suffix_len];
+            debug!("getting file {}", tpl_name);
             try!(reg.register_template_file(&tpl_name, &tpl_path))
         }
         Ok(())
