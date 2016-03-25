@@ -72,7 +72,7 @@ fn main() {
 
     let mut chain = Chain::new(hello_world);
 
-    let mut hbse = HandlebarsEngine::new2();
+    let mut hbse = HandlebarsEngine::new();
     let source = Box::new(DirectorySource::new("./examples/templates/", ".hbs"));
     hbse.add(source);
     if let Err(r) = hbse.reload() {

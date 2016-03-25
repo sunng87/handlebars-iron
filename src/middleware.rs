@@ -17,7 +17,6 @@ use serde::ser::Serialize as ToJson;
 use serde_json::value::{self, Value as Json};
 
 use ::source::{Source, SourceError};
-use ::sources::directory::{DirectorySource};
 
 #[derive(Clone)]
 pub struct Template {
@@ -96,38 +95,14 @@ impl PluginFor<Response> for HandlebarsEngine {
 
 
 impl HandlebarsEngine {
-    /// #[Deprecated], for backward compaitibility only
-    pub fn new(prefix: &str, suffix: &str) -> HandlebarsEngine {
-        let mut hbs = HandlebarsEngine::new2();
-        hbs.add(Box::new(DirectorySource::new(prefix, suffix)));
-        match hbs.reload() {
-            Ok(_) => hbs,
-            Err(e) => {
-                panic!("Failed to init from directory: {}", e.description())
-            }
-        }
-    }
-
-    /// #[Deprecated], for backward compaitibility only
-    pub fn from(prefix: &str, suffix: &str, custom: Handlebars) -> HandlebarsEngine {
-        let mut hbs = HandlebarsEngine::from2(custom);
-        hbs.add(Box::new(DirectorySource::new(prefix, suffix)));
-        match hbs.reload() {
-            Ok(_) => hbs,
-            Err(e) => {
-                panic!("Failed to init from directory: {}", e.description())
-            }
-        }
-    }
-
-    pub fn new2() -> HandlebarsEngine {
+    pub fn new() -> HandlebarsEngine {
         HandlebarsEngine {
             sources: Vec::new(),
             registry: RwLock::new(Box::new(Handlebars::new()))
         }
     }
 
-    pub fn from2(reg: Handlebars) -> HandlebarsEngine {
+    pub fn from(reg: Handlebars) -> HandlebarsEngine {
         HandlebarsEngine {
             sources: Vec::new(),
             registry: RwLock::new(Box::new(reg))
@@ -248,7 +223,7 @@ mod test {
 
     #[test]
     fn test_register_helper() {
-        let hbs = HandlebarsEngine::new2();
+        let hbs = HandlebarsEngine::new();
         let mut reg = hbs.registry.write().unwrap();
         reg.register_helper("ignore", Box::new(|_: &Context, _: &Helper, _: &Handlebars, _: &mut RenderContext| -> Result<(), RenderError> {
             Ok(())

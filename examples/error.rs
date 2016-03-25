@@ -26,7 +26,7 @@ impl AfterMiddleware for ErrorReporter {
 
 fn main() {
     let mut chain = Chain::new(hello_world);
-    let mut hbse = HandlebarsEngine::new2();
+    let mut hbse = HandlebarsEngine::new();
     hbse.add(Box::new(DirectorySource::new("./examples/templates/", ".hbs")));
     // success of panic
     if let Err(r) = hbse.reload() {

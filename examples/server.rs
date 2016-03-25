@@ -119,7 +119,7 @@ fn temp(_: &mut Request) -> IronResult<Response> {
 fn main() {
     env_logger::init().unwrap();
 
-    let mut hbse = HandlebarsEngine::new2();
+    let mut hbse = HandlebarsEngine::new();
 
     // add a directory source, all files with .hbs suffix will be loaded as template
     hbse.add(Box::new(DirectorySource::new("./examples/templates/", ".hbs")));

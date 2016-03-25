@@ -5,7 +5,7 @@ use hbsi::{HandlebarsEngine, DirectorySource};
 
 #[test]
 fn test_template() {
-    let mut hbse = HandlebarsEngine::new2();
+    let mut hbse = HandlebarsEngine::new();
     let src = Box::new(DirectorySource::new("./examples/templates/", ".hbs"));
 
     hbse.add(src);
@@ -23,7 +23,7 @@ fn test_template() {
 
 #[test]
 fn test_template2() {
-    let mut hbse = HandlebarsEngine::new2();
+    let mut hbse = HandlebarsEngine::new();
     let src = Box::new(DirectorySource::new("./examples/templates", ".hbs"));
 
     hbse.add(src);
