@@ -12,6 +12,9 @@ The most recent version of handlebars-iron, like Hyper, Iron and
 Handlebars-rust, now compiles on nightly, beta and latest stable (1.5.0+) channel. Our
 travis task will track the compatibility on all these channels.
 
+Handlebars-iron 0.14.x works with Iron 0.3.x and Hyper 0.8.x. If you
+were using Iron 0.2.x you can stick with handlebars-iron 0.13.x.
+
 ## Usage
 
 Add HandlebarsEngine to your Iron middleware chain as an "after"
