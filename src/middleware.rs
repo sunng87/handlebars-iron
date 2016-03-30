@@ -159,6 +159,12 @@ impl AfterMiddleware for HandlebarsEngine {
             }
         }
     }
+
+    fn catch(&self, req: &mut Request, e: IronError) -> IronResult<Response> {
+        let mut err = e;
+        err.response = try!(self.after(req, err.response));
+        Err(err)
+    }
 }
 
 #[cfg(test)]
