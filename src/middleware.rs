@@ -126,7 +126,7 @@ impl HandlebarsEngine {
 impl AfterMiddleware for HandlebarsEngine {
     fn after(&self, _: &mut Request, r: Response) -> IronResult<Response> {
         let mut resp = r;
-        let page_wrapper = resp.extensions.get::<HandlebarsEngine>().as_ref()
+        let page_wrapper = resp.extensions.remove::<HandlebarsEngine>()
             .and_then(|h| {
                 let hbs = self.registry.read().unwrap();
                 if let Some(ref name) = h.name {
