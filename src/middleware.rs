@@ -124,8 +124,7 @@ impl HandlebarsEngine {
 }
 
 impl AfterMiddleware for HandlebarsEngine {
-    fn after(&self, _: &mut Request, r: Response) -> IronResult<Response> {
-        let mut resp = r;
+    fn after(&self, _: &mut Request, mut resp: Response) -> IronResult<Response> {
         let page_wrapper = resp.extensions.remove::<HandlebarsEngine>()
             .and_then(|h| {
                 let hbs = self.registry.read().unwrap();
@@ -158,6 +157,11 @@ impl AfterMiddleware for HandlebarsEngine {
                 Ok(resp)
             }
         }
+    }
+
+    fn catch(&self, req: &mut Request, mut err: IronError) -> IronResult<Response> {
+        err.response = try!(self.after(req, err.response));
+        Err(err)
     }
 }
 
