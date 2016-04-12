@@ -39,9 +39,10 @@ impl Source for DirectorySource {
             let tpl_path = p.path();
             let tpl_file_path = p.path().to_string_lossy();
             let tpl_name = &tpl_file_path[prefix_len .. tpl_file_path.len() - suffix_len];
+            let tpl_canonical_name = tpl_name.replace("\\", "/");
             debug!("getting file {}", tpl_file_path);
             debug!("register template {}", tpl_name);
-            try!(reg.register_template_file(&tpl_name, &tpl_path))
+            try!(reg.register_template_file(&tpl_canonical_name, &tpl_path))
         }
         Ok(())
     }
