@@ -22,7 +22,7 @@ middleware.
 
 ```rust
   /// HandlebarsEngine will look up all files with "./examples/templates/**/*.hbs"
-  let mut hbse = HandlebarsEngine::new2();
+  let mut hbse = HandlebarsEngine::new();
   hbse.add(Box::new(DirectorySource::new("./examples/templates/", ".hbs")));
 
   // load templates from all registered sources
@@ -79,12 +79,6 @@ Since this is simple library, you may run this
 with `RUST_LOG=handlebars_iron=info cargo run --example server`
 first, and [documentation](http://sunng.info/handlebars-iron/)
 then.
-
-0.10.0 of handlebars-iron introduces source API. Directory source and
-Memory source are supported by default. Previous API
-(`HandlebarsEngine::new()` and `HandlebarsEngine::from()`) is
-deprecated in 0.10.0 and will be replaced by `new2` and `from2` in
-future.
 
 Rust and its ecosystem are still in early stage, this
 project might been broken for various reasons. I will try my best to
