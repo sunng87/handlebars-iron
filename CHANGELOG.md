@@ -1,5 +1,28 @@
 # Change Log
 
+## [0.15.2] - 2016-05-21
+
+### Changed
+
+* Improved performance for directory watcher. [#45]
+
+## [0.15.1] - 2016-04-13
+
+### Changed
+
+* Fixed template loading on Windows. [#42]
+
+## [0.15.0] - 2016-04-01
+
+### Added
+
+* Template from `catch` branch will be rendered too. [#40]
+
+### Changed
+
+* Handlebars data will be removed from Iron request extension map when
+  we finished rendering.
+
 ## [0.14.0] - 2016-03-25
 
 ### Changed
