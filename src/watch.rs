@@ -6,12 +6,17 @@ use std::sync::mpsc::channel;
 use std::sync::Arc;
 use std::thread;
 
-fn _watch (p: &Path) -> Result<(), Error>{
+fn _watch (p: &Path, hbs: &Arc<HandlebarsEngine>) -> Result<(), Error>{
     let (tx, rx) = channel();
     let mut watcher: RecommendedWatcher = try!(Watcher::new(tx));
     try!(watcher.watch(p));
-    let _ = rx.recv();
-    Ok(())
+    loop {
+        let _ = rx.recv();
+        info!("Template directory changed");
+        if let Err(e) = hbs.reload() {
+            error!("Failed to reload directory: {:?}", e);
+        }
+    }
 }
 
 pub trait Watchable {
@@ -23,20 +28,11 @@ impl Watchable for Arc<HandlebarsEngine> {
         let hbs = self.clone();
         let watch_path = path.to_owned();
         thread::spawn(move || {
-            info!("watching path: {}", watch_path);
-            let path = Path::new(&watch_path);
-            loop {
-                match _watch(&path) {
-                    Ok(_) => {
-                        info!("Template directory changed");
-                        if let Err(e) = hbs.reload() {
-                            error!("Failed to reload directory: {:?}", e);
-                        }
-                    },
-                    Err(e) => {
-                        warn!("Failed to watch directory: {:?}", e);
-                        panic!();
-                    }
+            match _watch(Path::new(&watch_path), &hbs) {
+                Ok(_) => (),
+                Err(e) => {
+                    warn!("Failed to watch directory: {:?}", e);
+                    panic!();
                 }
             }
         });
