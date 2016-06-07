@@ -7,6 +7,7 @@ for the [Iron web framework](http://ironframework.io).
 [![Build
 Status](https://travis-ci.org/sunng87/handlebars-iron.svg?branch=master)](https://travis-ci.org/sunng87/handlebars-iron)
 [![](http://meritbadge.herokuapp.com/handlebars-iron)](https://crates.io/crates/handlebars-iron)
+[![Gitter](https://img.shields.io/gitter/room/sunng87/handlebars-rust.svg?maxAge=2592000)](https://gitter.im/sunng87/handlebars-rust)
 
 The most recent version of handlebars-iron, like Hyper, Iron and
 Handlebars-rust, now compiles on nightly, beta and latest stable (1.7.0+) channel. Our
