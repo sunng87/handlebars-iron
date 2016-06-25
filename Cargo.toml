@@ -14,7 +14,7 @@ readme = "README.md"
 [dependencies]
 
 iron = "^0.3.0"
-handlebars = { version = "^0.16.0", default-features = false }
+handlebars = { version = "^0.18.0", default-features = false }
 #handlebars = { path = "../handlebars", default-features = false }
 rustc-serialize = { version = "^0.3.16", optional = true }
 serde = { version = "^0.7.0", optional = true }
