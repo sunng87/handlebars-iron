@@ -16,7 +16,7 @@ travis task will track the compatibility on all these channels.
 Dependency table
 
 handlebars-iron | handlebars | iron
--- | -- | -- 
+--------------- | ---------- | ---
 0.14.x | 0.16.x | 0.2.x 
 0.15.x | 0.18.x | 0.3.x
 0.16.0 | 0.19.x | 0.3.x
