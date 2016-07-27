@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.17.0] - 2016-07-27
+
+* Update iron to 0.4
+
+## [0.16.0] - 2016-07-27
+
+* Update handlebars to 0.19
+
 ## [0.15.3] - 2016-06-25
 
 ### Changed
