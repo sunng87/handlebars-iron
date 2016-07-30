@@ -8,7 +8,7 @@ license = "MIT"
 keywords = ["handlebars", "templating", "web", "webdev", "iron"]
 homepage = "https://github.com/sunng87/handlebars-iron"
 repository = "https://github.com/sunng87/handlebars-iron"
-documentation = "http://sunng.info/handlebars-iron/"
+documentation = "http://sunng87.github.io/handlebars-iron/"
 readme = "README.md"
 
 [dependencies]
