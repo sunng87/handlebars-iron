@@ -13,14 +13,17 @@ The most recent version of handlebars-iron, like Hyper, Iron and
 Handlebars-rust, now compiles on nightly, beta and latest stable (1.7.0+) channel. Our
 travis task will track the compatibility on all these channels.
 
-Dependency table
+Both iron and handlebars has backward-incompatible change during 0.x
+releases. So you will need to choose handlebars-iron version based on
+those two versions you were using:
 
 handlebars-iron | handlebars | iron
 --------------- | ---------- | ---
-0.14.x | 0.16.x | 0.2.x 
+0.14.x | 0.16.x | 0.2.x
 0.15.x | 0.18.x | 0.3.x
 0.16.0 | 0.19.x | 0.3.x
 0.17.x | 0.19.x | 0.4.x
+0.18.x | 0.20.x (serde 0.8) | 0.4.x
 
 ## Usage
 
