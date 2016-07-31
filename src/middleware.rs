@@ -2,7 +2,7 @@ use std::sync::RwLock;
 use std::error::Error;
 
 use iron::prelude::*;
-use iron::{status};
+use iron::status;
 use iron::{AfterMiddleware, typemap};
 use iron::modifier::Modifier;
 use plugin::Plugin as PluginFor;
@@ -16,13 +16,13 @@ use serde::ser::Serialize as ToJson;
 #[cfg(feature = "serde_type")]
 use serde_json::value::{self, Value as Json};
 
-use ::source::{Source, SourceError};
+use source::{Source, SourceError};
 
 #[derive(Clone)]
 pub struct Template {
     name: Option<String>,
     content: Option<String>,
-    value: Json
+    value: Json,
 }
 
 #[cfg(not(feature = "serde_type"))]
@@ -32,7 +32,7 @@ impl Template {
         Template {
             name: Some(name.to_string()),
             value: value.to_json(),
-            content: None
+            content: None,
         }
     }
 
@@ -41,7 +41,7 @@ impl Template {
         Template {
             name: None,
             value: value.to_json(),
-            content: Some(content.to_string())
+            content: Some(content.to_string()),
         }
     }
 }
@@ -53,7 +53,7 @@ impl Template {
         Template {
             name: Some(name.to_string()),
             value: value::to_value(&value),
-            content: None
+            content: None,
         }
     }
 
@@ -62,14 +62,14 @@ impl Template {
         Template {
             name: None,
             value: value::to_value(&value),
-            content: Some(content.to_string())
+            content: Some(content.to_string()),
         }
     }
 }
 
 pub struct HandlebarsEngine {
     pub sources: Vec<Box<Source + Send + Sync>>,
-    pub registry: RwLock<Box<Handlebars>>
+    pub registry: RwLock<Box<Handlebars>>,
 }
 
 impl typemap::Key for HandlebarsEngine {
@@ -86,9 +86,9 @@ impl PluginFor<Response> for HandlebarsEngine {
     type Error = ();
 
     fn eval(resp: &mut Response) -> Result<Template, ()> {
-        match resp.extensions.get::<HandlebarsEngine>(){
+        match resp.extensions.get::<HandlebarsEngine>() {
             Some(t) => Ok(t.clone()),
-            None => Err(())
+            None => Err(()),
         }
     }
 }
@@ -98,14 +98,14 @@ impl HandlebarsEngine {
     pub fn new() -> HandlebarsEngine {
         HandlebarsEngine {
             sources: Vec::new(),
-            registry: RwLock::new(Box::new(Handlebars::new()))
+            registry: RwLock::new(Box::new(Handlebars::new())),
         }
     }
 
     pub fn from(reg: Handlebars) -> HandlebarsEngine {
         HandlebarsEngine {
             sources: Vec::new(),
-            registry: RwLock::new(Box::new(reg))
+            registry: RwLock::new(Box::new(reg)),
         }
     }
 
@@ -125,17 +125,19 @@ impl HandlebarsEngine {
 
 impl AfterMiddleware for HandlebarsEngine {
     fn after(&self, _: &mut Request, mut resp: Response) -> IronResult<Response> {
-        let page_wrapper = resp.extensions.remove::<HandlebarsEngine>()
-            .and_then(|h| {
-                let hbs = self.registry.read().unwrap();
-                if let Some(ref name) = h.name {
-                    return Some(hbs.render(name, &h.value).map_err(TemplateRenderError::from));
-                } else if let Some(ref content) = h.content {
-                    return Some(hbs.template_render(content, &h.value));
-                } else {
-                    unreachable!();
-                }
-            });
+        let page_wrapper = resp.extensions
+                               .remove::<HandlebarsEngine>()
+                               .and_then(|h| {
+                                   let hbs = self.registry.read().unwrap();
+                                   if let Some(ref name) = h.name {
+                                       return Some(hbs.render(name, &h.value)
+                                                      .map_err(TemplateRenderError::from));
+                                   } else if let Some(ref content) = h.content {
+                                       return Some(hbs.template_render(content, &h.value));
+                                   } else {
+                                       unreachable!();
+                                   }
+                               });
 
         match page_wrapper {
             Some(page_result) => {
@@ -153,9 +155,7 @@ impl AfterMiddleware for HandlebarsEngine {
                     }
                 }
             }
-            None => {
-                Ok(resp)
-            }
+            None => Ok(resp),
         }
     }
 
@@ -191,6 +191,7 @@ mod test {
     }
 
     #[test]
+    #[cfg(not(feature = "serde_type"))]
     fn test_resp_set() {
         let mut resp = hello_world().ok().expect("response expected");
 
@@ -198,16 +199,44 @@ mod test {
         match resp.get::<HandlebarsEngine>() {
             Ok(h) => {
                 assert_eq!(h.name.unwrap(), "index".to_string());
-                assert_eq!(h.value.as_object().unwrap()
-                           .get(&"title".to_string()).unwrap()
-                           .as_string().unwrap(),
+                assert_eq!(h.value
+                            .as_object()
+                            .unwrap()
+                            .get(&"title".to_string())
+                            .unwrap()
+                            .as_string()
+                            .unwrap(),
                            "Handlebars on Iron");
-            },
-            _ => panic!("template expected")
+            }
+            _ => panic!("template expected"),
         }
     }
 
     #[test]
+    #[cfg(feature = "serde_type")]
+    fn test_resp_set() {
+        let mut resp = hello_world().ok().expect("response expected");
+
+        // use response plugin to retrieve a cloned template for testing
+        match resp.get::<HandlebarsEngine>() {
+            Ok(h) => {
+                assert_eq!(h.name.unwrap(), "index".to_string());
+                assert_eq!(h.value
+                            .as_object()
+                            .unwrap()
+                            .get(&"title".to_string())
+                            .unwrap()
+                            .as_str()
+                            .unwrap(),
+                           "Handlebars on Iron");
+            }
+            _ => panic!("template expected"),
+        }
+    }
+
+
+    #[test]
+    #[cfg(not(feature = "serde_type"))]
     fn test_resp_set2() {
         let mut resp = hello_world2().ok().expect("response expected");
 
@@ -215,22 +244,52 @@ mod test {
         match resp.get::<HandlebarsEngine>() {
             Ok(h) => {
                 assert_eq!(h.content.unwrap(), "{{title}}".to_string());
-                assert_eq!(h.value.as_object().unwrap()
-                           .get(&"title".to_string()).unwrap()
-                           .as_string().unwrap(),
+                assert_eq!(h.value
+                            .as_object()
+                            .unwrap()
+                            .get(&"title".to_string())
+                            .unwrap()
+                            .as_string()
+                            .unwrap(),
                            "Handlebars on Iron");
-            },
-            _ => panic!("template expected")
+            }
+            _ => panic!("template expected"),
         }
     }
 
+    #[test]
+    #[cfg(feature = "serde_type")]
+    fn test_resp_set2() {
+        let mut resp = hello_world2().ok().expect("response expected");
+
+        // use response plugin to retrieve a cloned template for testing
+        match resp.get::<HandlebarsEngine>() {
+            Ok(h) => {
+                assert_eq!(h.content.unwrap(), "{{title}}".to_string());
+                assert_eq!(h.value
+                            .as_object()
+                            .unwrap()
+                            .get(&"title".to_string())
+                            .unwrap()
+                            .as_str()
+                            .unwrap(),
+                           "Handlebars on Iron");
+            }
+            _ => panic!("template expected"),
+        }
+    }
 
     #[test]
     fn test_register_helper() {
         let hbs = HandlebarsEngine::new();
         let mut reg = hbs.registry.write().unwrap();
-        reg.register_helper("ignore", Box::new(|_: &Context, _: &Helper, _: &Handlebars, _: &mut RenderContext| -> Result<(), RenderError> {
-            Ok(())
-        }));
+        reg.register_helper("ignore",
+                            Box::new(|_: &Context,
+                                      _: &Helper,
+                                      _: &Handlebars,
+                                      _: &mut RenderContext|
+                                      -> Result<(), RenderError> {
+                                Ok(())
+                            }));
     }
 }
