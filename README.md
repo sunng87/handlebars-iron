@@ -131,6 +131,11 @@ You can find an working example in `examples/server.rs` and try to run
 it via: `cargo run --features unstable --example server
 --no-default-features`
 
+## Using handlebars-iron?
+
+Add your project to our
+[adopters](https://github.com/sunng87/handlebars-rust/wiki/adopters).
+
 ## License
 
 MIT, of course.
