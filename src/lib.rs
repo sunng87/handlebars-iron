@@ -4,7 +4,23 @@
 //!
 //! ## Setup
 //!
-//! Given the template root directory (prefix) and template file extension (suffix), you can create `HandlebarsEngine` with `Handlebars::new("/prefix/path", ".hbs")` function. HandlebarsEngine will scan the directory and its sub-directories (with Unix glob **/*), and register these templates with `path/name` as name.
+//! Handlebars-iron provides two kinds of template source: `DirectorySource` and `MemorySource` by default. `DirectorySource` helps you to load template files from a directory, which `MemorySource` loads template as string in memory.
+//!
+//! To load files from file system, you need to specify template root and file suffix. Handlebars-iron will scan the directory and loads all templates that matches the suffix. The file's relative path name will be applied as template name.
+//!
+//! ```ignore
+//! /// HandlebarsEngine will look up all files with "./examples/templates/**/*.hbs"
+//! let mut hbse = HandlebarsEngine::new();
+//! hbse.add(Box::new(DirectorySource::new("./examples/templates/", ".hbs")));
+//!
+//! // load templates from all registered sources
+//! if let Err(r) = hbse.reload() {
+//!   panic!("{}", r.description());
+//! }
+//!
+//! chain.link_after(hbse);
+//!
+//! ```
 //!
 //! ## Usage
 //!
