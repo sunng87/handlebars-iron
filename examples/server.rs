@@ -1,5 +1,4 @@
-#![cfg_attr(all(feature="serde_type"), feature(custom_derive, plugin))]
-#![cfg_attr(all(feature="serde_type"), plugin(serde_macros))]
+#![cfg_attr(all(feature="serde_type"), feature(rustc_macro))]
 
 extern crate iron;
 extern crate router;
@@ -11,13 +10,16 @@ extern crate rustc_serialize;
 extern crate serde;
 #[cfg(feature = "serde_type")]
 extern crate serde_json;
+#[cfg(feature = "serde_type")]
+#[macro_use]
+extern crate serde_derive;
 #[macro_use]
 extern crate maplit;
 
 use std::error::Error;
 
 use iron::prelude::*;
-use iron::{status};
+use iron::status;
 use router::Router;
 use hbs::{Template, HandlebarsEngine, DirectorySource, MemorySource};
 
@@ -28,7 +30,7 @@ mod data {
 
     pub struct Team {
         name: String,
-        pts: u16
+        pts: u16,
     }
 
     impl ToJson for Team {
@@ -40,19 +42,27 @@ mod data {
         }
     }
 
-    pub fn make_data () -> BTreeMap<String, Json> {
+    pub fn make_data() -> BTreeMap<String, Json> {
         let mut data = BTreeMap::new();
 
         data.insert("year".to_string(), "2015".to_json());
 
-        let teams = vec![ Team { name: "Jiangsu Sainty".to_string(),
-                                 pts: 43u16 },
-                          Team { name: "Beijing Guoan".to_string(),
-                                 pts: 27u16 },
-                          Team { name: "Guangzhou Evergrand".to_string(),
-                                 pts: 22u16 },
-                          Team { name: "Shandong Luneng".to_string(),
-                                 pts: 12u16 } ];
+        let teams = vec![Team {
+                             name: "Jiangsu Sainty".to_string(),
+                             pts: 43u16,
+                         },
+                         Team {
+                             name: "Beijing Guoan".to_string(),
+                             pts: 27u16,
+                         },
+                         Team {
+                             name: "Guangzhou Evergrand".to_string(),
+                             pts: 22u16,
+                         },
+                         Team {
+                             name: "Shandong Luneng".to_string(),
+                             pts: 12u16,
+                         }];
 
         data.insert("teams".to_string(), teams.to_json());
         data.insert("engine".to_string(), "rustc_serialize".to_json());
@@ -68,22 +78,30 @@ mod data {
     #[derive(Serialize, Debug)]
     pub struct Team {
         name: String,
-        pts: u16
+        pts: u16,
     }
 
-    pub fn make_data () -> BTreeMap<String, Value> {
+    pub fn make_data() -> BTreeMap<String, Value> {
         let mut data = BTreeMap::new();
 
         data.insert("year".to_string(), value::to_value(&"2015"));
 
-        let teams = vec![ Team { name: "Jiangsu Sainty".to_string(),
-                                 pts: 43u16 },
-                          Team { name: "Beijing Guoan".to_string(),
-                                 pts: 27u16 },
-                          Team { name: "Guangzhou Evergrand".to_string(),
-                                 pts: 22u16 },
-                          Team { name: "Shandong Luneng".to_string(),
-                                 pts: 12u16 } ];
+        let teams = vec![Team {
+                             name: "Jiangsu Sainty".to_string(),
+                             pts: 43u16,
+                         },
+                         Team {
+                             name: "Beijing Guoan".to_string(),
+                             pts: 27u16,
+                         },
+                         Team {
+                             name: "Guangzhou Evergrand".to_string(),
+                             pts: 22u16,
+                         },
+                         Team {
+                             name: "Shandong Luneng".to_string(),
+                             pts: 12u16,
+                         }];
 
         data.insert("teams".to_string(), value::to_value(&teams));
         data.insert("engine".to_string(), value::to_value(&"serde_json"));
@@ -137,10 +155,9 @@ fn main() {
 
 
     let mut router = Router::new();
-    router
-        .get("/", index)
-        .get("/mem", memory)
-        .get("/temp", temp);
+    router.get("/", index)
+          .get("/mem", memory)
+          .get("/temp", temp);
     let mut chain = Chain::new(router);
     chain.link_after(hbse);
     println!("Server running at http://localhost:3000/");
