@@ -30,6 +30,7 @@ serde_derive = { version = "^0.8.10", optional = true }
 default = ["handlebars/default", "rustc-serialize"]
 watch = ["notify"]
 serde_type = ["handlebars/serde_type", "serde", "serde_json"]
+partial4 = ["handlebars/partial4"]
 unstable = ["serde_type", "serde_derive"]
 
 [dev-dependencies]
