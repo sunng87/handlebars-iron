@@ -19,7 +19,7 @@ struct ErrorReporter;
 
 impl AfterMiddleware for ErrorReporter {
     fn catch(&self, _: &mut Request, err: IronError) -> IronResult<Response> {
-        println!("{}", err.description());
+        println!("{:?}", err);
         Err(err)
     }
 }
