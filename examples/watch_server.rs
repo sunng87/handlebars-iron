@@ -11,7 +11,6 @@ use hbs::{HandlebarsEngine, DirectorySource};
 use hbs::Watchable;
 
 use std::sync::Arc;
-use std::error::Error;
 
 #[cfg(not(feature = "serde_type"))]
 mod data {
@@ -23,7 +22,7 @@ mod data {
 
     struct Team {
         name: String,
-        pts: u16
+        pts: u16,
     }
 
     impl ToJson for Team {
@@ -35,19 +34,27 @@ mod data {
         }
     }
 
-    fn make_data () -> BTreeMap<String, Json> {
+    fn make_data() -> BTreeMap<String, Json> {
         let mut data = BTreeMap::new();
 
         data.insert("year".to_string(), "2015".to_json());
 
-        let teams = vec![ Team { name: "Jiangsu Sainty".to_string(),
-                                 pts: 43u16 },
-                          Team { name: "Beijing Guoan".to_string(),
-                                 pts: 27u16 },
-                          Team { name: "Guangzhou Evergrand".to_string(),
-                                 pts: 22u16 },
-                          Team { name: "Shandong Luneng".to_string(),
-                                 pts: 12u16 } ];
+        let teams = vec![Team {
+                             name: "Jiangsu Sainty".to_string(),
+                             pts: 43u16,
+                         },
+                         Team {
+                             name: "Beijing Guoan".to_string(),
+                             pts: 27u16,
+                         },
+                         Team {
+                             name: "Guangzhou Evergrand".to_string(),
+                             pts: 22u16,
+                         },
+                         Team {
+                             name: "Shandong Luneng".to_string(),
+                             pts: 12u16,
+                         }];
 
         data.insert("teams".to_string(), teams.to_json());
         data.insert("engine".to_string(), "rustc_serialize".to_json());
@@ -76,7 +83,7 @@ fn main() {
     let source = Box::new(DirectorySource::new("./examples/templates/", ".hbs"));
     hbse.add(source);
     if let Err(r) = hbse.reload() {
-        panic!("{}", r.description());
+        panic!("{}", r);
     }
 
     let hbse_ref = Arc::new(hbse);

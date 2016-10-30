@@ -16,8 +16,6 @@ extern crate serde_derive;
 #[macro_use]
 extern crate maplit;
 
-use std::error::Error;
-
 use iron::prelude::*;
 use iron::status;
 use router::Router;
@@ -150,7 +148,7 @@ fn main() {
 
     // load templates from all registered sources
     if let Err(r) = hbse.reload() {
-        panic!("{}", r.description());
+        panic!("{}", r);
     }
 
 

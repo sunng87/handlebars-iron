@@ -1,7 +1,6 @@
 extern crate iron;
 extern crate handlebars_iron as hbs;
 
-use std::error::Error;
 use iron::prelude::*;
 use iron::{status, AfterMiddleware};
 use hbs::{Template, HandlebarsEngine, DirectorySource};
@@ -19,7 +18,7 @@ struct ErrorReporter;
 
 impl AfterMiddleware for ErrorReporter {
     fn catch(&self, _: &mut Request, err: IronError) -> IronResult<Response> {
-        println!("{:?}", err);
+        println!("{}", err);
         Err(err)
     }
 }
@@ -30,7 +29,7 @@ fn main() {
     hbse.add(Box::new(DirectorySource::new("./examples/templates/", ".hbs")));
     // success of panic
     if let Err(r) = hbse.reload() {
-        panic!("{}", r.description());
+        panic!("{}", r);
     }
 
 
