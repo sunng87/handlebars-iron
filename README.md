@@ -37,11 +37,33 @@ middleware.
 
   // load templates from all registered sources
   if let Err(r) = hbse.reload() {
-    panic!("{}", r.description());
+    panic!("{}", r);
   }
 
   chain.link_after(hbse);
 ```
+
+If you want register your own custom helpers, you can initialize the
+`HandlebarsEngine` from a custom `Handlebars` registry.
+
+```
+  /// HandlebarsEngine will look up all files with "./examples/templates/**/*.hbs"
+  let mut hb = Handlebars::new();
+  hb.register_helper("helper", my_helper);
+
+  let mut hbse = HandlebarsEngine::from(hb);
+  hbse.add(Box::new(DirectorySource::new("./examples/templates/", ".hbs")));
+
+  // load templates from all registered sources
+  if let Err(r) = hbse.reload() {
+    panic!("{}", r);
+  }
+
+  chain.link_after(hbse);
+```
+
+You can find more information about custom helper in [handlebars-rust
+document](https://github.com/sunng87/handlebars-rust#extensible-helper-system).
 
 In your handler, set `Template` to response. As required by
 Handlebars-rust, your data should impl `serialize::json::ToJson`. If
