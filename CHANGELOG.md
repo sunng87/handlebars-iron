@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.19.2] - 2016-10-31
+
+* Update handlebars to 0.22 for better error reporting
+
 ## [0.17.0] - 2016-07-27
 
 * Update iron to 0.4
