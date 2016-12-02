@@ -107,10 +107,10 @@ mod data {
     }
 }
 
+use data::*;
+
 /// the handlers
 fn index(_: &mut Request) -> IronResult<Response> {
-    use data::*;
-
     let mut resp = Response::new();
     let data = make_data();
     resp.set_mut(Template::new("some/path/hello", data)).set_mut(status::Ok);
@@ -119,17 +119,21 @@ fn index(_: &mut Request) -> IronResult<Response> {
 
 fn memory(_: &mut Request) -> IronResult<Response> {
     let mut resp = Response::new();
-    resp.set_mut(Template::new("memory", ())).set_mut(status::Ok);
+    let data = make_data();
+    resp.set_mut(Template::new("memory", data)).set_mut(status::Ok);
     Ok(resp)
 }
 
 fn temp(_: &mut Request) -> IronResult<Response> {
-    use data::*;
-
     let mut resp = Response::new();
     let data = make_data();
-    resp.set_mut(Template::with("<h1>{{engine}}</h1>", data)).set_mut(status::Ok);
+    resp.set_mut(Template::with(include_str!("templates/some/path/hello.hbs"), data))
+        .set_mut(status::Ok);
     Ok(resp)
+}
+
+fn plain(_: &mut Request) -> IronResult<Response> {
+    Ok(Response::with((status::Ok, "It works")))
 }
 
 fn main() {
@@ -141,7 +145,7 @@ fn main() {
     hbse.add(Box::new(DirectorySource::new("./examples/templates/", ".hbs")));
 
     let mem_templates = btreemap! {
-        "memory".to_owned() => "<h1>Memory Template</h1>".to_owned()
+        "memory".to_owned() => include_str!("templates/some/path/hello.hbs").to_owned()
     };
     // add a memory based source
     hbse.add(Box::new(MemorySource(mem_templates)));
@@ -155,7 +159,8 @@ fn main() {
     let mut router = Router::new();
     router.get("/", index)
           .get("/mem", memory)
-          .get("/temp", temp);
+          .get("/temp", temp)
+          .get("/plain", plain);
     let mut chain = Chain::new(router);
     chain.link_after(hbse);
     println!("Server running at http://localhost:3000/");
