@@ -11,4 +11,4 @@ script:
   - |
       cargo test &&
       cargo test --features watch &&
-      travis-cargo --only nightly test -- --no-default-features
+      travis-cargo --only nightly test
