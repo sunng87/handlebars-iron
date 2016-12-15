@@ -1,5 +1,14 @@
 # Change Log
 
+## [0.20.0] - 2016-12-15
+
+### Changed
+
+* Update handlebars to 0.23
+* New partial system, use feature `partial_legacy` for previous
+  partial syntax
+* Update notify to 3.0, better events aggregation
+
 ## [0.19.2] - 2016-10-31
 
 * Update handlebars to 0.22 for better error reporting
