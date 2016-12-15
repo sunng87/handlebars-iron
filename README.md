@@ -24,6 +24,8 @@ handlebars-iron | handlebars | iron
 0.16.0 | 0.19.x | 0.3.x
 0.17.x | 0.19.x | 0.4.x
 0.18.x | 0.20.x (serde 0.8) | 0.4.x
+0.19.x | 0.22.x | 0.4.x
+0.20.x | 0.23.x | 0.4.x
 
 ## Usage
 
