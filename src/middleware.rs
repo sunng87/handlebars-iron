@@ -1,4 +1,4 @@
-use std::sync::RwLock;
+use std::sync::{RwLock, RwLockWriteGuard};
 use std::error::Error;
 
 use iron::prelude::*;
@@ -114,12 +114,16 @@ impl HandlebarsEngine {
     }
 
     pub fn reload(&self) -> Result<(), SourceError> {
-        let mut hbs = self.registry.write().unwrap();
+        let mut hbs = self.handlebars_mut();
         hbs.clear_templates();
         for s in self.sources.iter() {
             try!(s.load(&mut hbs))
         }
         Ok(())
+    }
+
+    pub fn handlebars_mut(&self) -> RwLockWriteGuard<Box<Handlebars>> {
+        self.registry.write().unwrap()
     }
 }
 
