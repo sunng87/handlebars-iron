@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.21.0] - 2016-12-31
+
+### Changed
+
+* Updated handlebars to 0.24
+* Added `handlebars_mut()` to retrieve a writable registry reference
+  from `HandlebarsEngine`, useful to register custom helpers
+
 ## [0.20.0] - 2016-12-15
 
 ### Changed
