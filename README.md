@@ -26,6 +26,7 @@ handlebars-iron | handlebars | iron
 0.18.x | 0.20.x (serde 0.8) | 0.4.x
 0.19.x | 0.22.x | 0.4.x
 0.20.x | 0.23.x | 0.4.x
+0.21.x | 0.24.x | 0.4.x
 
 ## Usage
 
@@ -49,12 +50,9 @@ If you want register your own custom helpers, you can initialize the
 `HandlebarsEngine` from a custom `Handlebars` registry.
 
 ```
-  /// HandlebarsEngine will look up all files with "./examples/templates/**/*.hbs"
-  let mut hb = Handlebars::new();
-  hb.register_helper("helper", my_helper);
-
-  let mut hbse = HandlebarsEngine::from(hb);
+  let mut hbse = HandlebarsEngine::new();
   hbse.add(Box::new(DirectorySource::new("./examples/templates/", ".hbs")));
+  hbse.handlebars_mut().register_helper("helper", my_helper);
 
   // load templates from all registered sources
   if let Err(r) = hbse.reload() {

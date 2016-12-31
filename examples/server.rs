@@ -3,6 +3,7 @@
 extern crate iron;
 extern crate router;
 extern crate env_logger;
+extern crate handlebars;
 extern crate handlebars_iron as hbs;
 #[cfg(not(feature = "serde_type"))]
 extern crate rustc_serialize;
@@ -20,6 +21,7 @@ use iron::prelude::*;
 use iron::status;
 use router::Router;
 use hbs::{Template, HandlebarsEngine, DirectorySource, MemorySource};
+use handlebars::{Handlebars, RenderContext, RenderError, Helper};
 
 #[cfg(not(feature = "serde_type"))]
 mod data {
@@ -154,6 +156,14 @@ fn main() {
     if let Err(r) = hbse.reload() {
         panic!("{}", r);
     }
+
+    hbse.handlebars_mut().register_helper("some_helper",
+                                          Box::new(|_: &Helper,
+                                                    _: &Handlebars,
+                                                    _: &mut RenderContext|
+                                                    -> Result<(), RenderError> {
+                                              Ok(())
+                                          }));
 
 
     let mut router = Router::new();
