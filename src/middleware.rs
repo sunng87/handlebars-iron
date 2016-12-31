@@ -67,6 +67,7 @@ impl Template {
     }
 }
 
+/// The handlebars template engine
 pub struct HandlebarsEngine {
     pub sources: Vec<Box<Source + Send + Sync>>,
     pub registry: RwLock<Box<Handlebars>>,
@@ -95,6 +96,7 @@ impl PluginFor<Response> for HandlebarsEngine {
 
 
 impl HandlebarsEngine {
+    /// create a handlebars template engine
     pub fn new() -> HandlebarsEngine {
         HandlebarsEngine {
             sources: Vec::new(),
@@ -102,6 +104,7 @@ impl HandlebarsEngine {
         }
     }
 
+    /// create a handlebars template engine from existed handlebars registry
     pub fn from(reg: Handlebars) -> HandlebarsEngine {
         HandlebarsEngine {
             sources: Vec::new(),
@@ -109,10 +112,12 @@ impl HandlebarsEngine {
         }
     }
 
+    /// add a template source
     pub fn add(&mut self, source: Box<Source + Send + Sync>) {
         self.sources.push(source);
     }
 
+    /// load template from registered sources
     pub fn reload(&self) -> Result<(), SourceError> {
         let mut hbs = self.handlebars_mut();
         hbs.clear_templates();
@@ -122,6 +127,7 @@ impl HandlebarsEngine {
         Ok(())
     }
 
+    /// access internal handlebars registry, useful to register custom helpers
     pub fn handlebars_mut(&self) -> RwLockWriteGuard<Box<Handlebars>> {
         self.registry.write().unwrap()
     }
