@@ -9,9 +9,8 @@ Status](https://travis-ci.org/sunng87/handlebars-iron.svg?branch=master)](https:
 [![](http://meritbadge.herokuapp.com/handlebars-iron)](https://crates.io/crates/handlebars-iron)
 [![Gitter](https://img.shields.io/gitter/room/sunng87/handlebars-rust.svg?maxAge=2592000)](https://gitter.im/sunng87/handlebars-rust)
 
-The most recent version of handlebars-iron, like Hyper, Iron and
-Handlebars-rust, now compiles on nightly, beta and latest stable (1.7.0+) channel. Our
-travis task will track the compatibility on all these channels.
+This library, together with handlebars, iron and hyper, works on
+both stable and nightly rust.
 
 Both iron and handlebars has backward-incompatible change during 0.x
 releases. So you will need to choose handlebars-iron version based on
@@ -27,6 +26,7 @@ handlebars-iron | handlebars | iron
 0.19.x | 0.22.x | 0.4.x
 0.20.x | 0.23.x | 0.4.x
 0.21.x | 0.24.x | 0.4.x
+0.22.x | 0.24.x | 0.5.x
 
 ## Usage
 

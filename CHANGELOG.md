@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.22.0] - 2017-01-12
+
+### Changed
+
+* Updated iron to 0.5
+
 ## [0.21.0] - 2016-12-31
 
 ### Changed
