@@ -167,10 +167,10 @@ fn main() {
 
 
     let mut router = Router::new();
-    router.get("/", index)
-          .get("/mem", memory)
-          .get("/temp", temp)
-          .get("/plain", plain);
+    router.get("/", index, "index")
+          .get("/mem", memory, "memory")
+          .get("/temp", temp, "temp")
+          .get("/plain", plain, "plain");
     let mut chain = Chain::new(router);
     chain.link_after(hbse);
     println!("Server running at http://localhost:3000/");
