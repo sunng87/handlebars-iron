@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.23.0] - 2017-01-28
+
+### Changed
+
+* Updated to Serde 0.9
+
 ## [0.22.0] - 2017-01-12
 
 ### Changed
