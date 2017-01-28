@@ -72,8 +72,8 @@ mod data {
 
 #[cfg(feature = "serde_type")]
 mod data {
-    use serde_json::value::{self, Value};
-    use std::collections::BTreeMap;
+    use handlebars::to_json;
+    use serde_json::value::{Value, Map};
 
     #[derive(Serialize, Debug)]
     pub struct Team {
@@ -81,10 +81,10 @@ mod data {
         pts: u16,
     }
 
-    pub fn make_data() -> BTreeMap<String, Value> {
-        let mut data = BTreeMap::new();
+    pub fn make_data() -> Map<String, Value> {
+        let mut data = Map::new();
 
-        data.insert("year".to_string(), value::to_value(&"2015"));
+        data.insert("year".to_string(), to_json(&"2015".to_owned()));
 
         let teams = vec![Team {
                              name: "Jiangsu Sainty".to_string(),
@@ -103,8 +103,8 @@ mod data {
                              pts: 12u16,
                          }];
 
-        data.insert("teams".to_string(), value::to_value(&teams));
-        data.insert("engine".to_string(), value::to_value(&"serde_json"));
+        data.insert("teams".to_string(), to_json(&teams));
+        data.insert("engine".to_string(), to_json(&"serde_json".to_owned()));
         data
     }
 }

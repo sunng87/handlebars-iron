@@ -8,13 +8,13 @@ use iron::modifier::Modifier;
 use plugin::Plugin as PluginFor;
 use iron::headers::ContentType;
 
-use handlebars::{Handlebars, TemplateRenderError};
+use handlebars::{Handlebars, TemplateRenderError, to_json};
 #[cfg(not(feature = "serde_type"))]
 use serialize::json::{ToJson, Json};
 #[cfg(feature = "serde_type")]
 use serde::ser::Serialize as ToJson;
 #[cfg(feature = "serde_type")]
-use serde_json::value::{self, Value as Json};
+use serde_json::value::Value as Json;
 
 use source::{Source, SourceError};
 
@@ -25,13 +25,12 @@ pub struct Template {
     value: Json,
 }
 
-#[cfg(not(feature = "serde_type"))]
 impl Template {
     /// render some template from pre-registered templates
     pub fn new<T: ToJson>(name: &str, value: T) -> Template {
         Template {
             name: Some(name.to_string()),
-            value: value.to_json(),
+            value: to_json(&value),
             content: None,
         }
     }
@@ -40,28 +39,7 @@ impl Template {
     pub fn with<T: ToJson>(content: &str, value: T) -> Template {
         Template {
             name: None,
-            value: value.to_json(),
-            content: Some(content.to_string()),
-        }
-    }
-}
-
-#[cfg(feature = "serde_type")]
-impl Template {
-    /// render some template from pre-registered templates
-    pub fn new<T: ToJson>(name: &str, value: T) -> Template {
-        Template {
-            name: Some(name.to_string()),
-            value: value::to_value(&value),
-            content: None,
-        }
-    }
-
-    /// render some template with temporary template string
-    pub fn with<T: ToJson>(content: &str, value: T) -> Template {
-        Template {
-            name: None,
-            value: value::to_value(&value),
+            value: to_json(&value),
             content: Some(content.to_string()),
         }
     }
