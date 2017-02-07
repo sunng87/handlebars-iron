@@ -50,7 +50,7 @@ middleware.
 If you want register your own custom helpers, you can initialize the
 `HandlebarsEngine` from a custom `Handlebars` registry.
 
-```
+```rust
   let mut hbse = HandlebarsEngine::new();
   hbse.add(Box::new(DirectorySource::new("./examples/templates/", ".hbs")));
   hbse.handlebars_mut().register_helper("helper", my_helper);
