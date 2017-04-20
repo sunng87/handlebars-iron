@@ -31,6 +31,8 @@
 //! Also we made `Response` plugin for `Template` via `HandlebarsEngine`. So you can test your handler from a test case, and retrieve the `Template` you set into it by `response.get::<HandlebarsEngine>`.
 //!
 
+pub extern crate handlebars;
+
 extern crate iron;
 
 #[cfg(not(feature = "serde_type"))]
@@ -40,7 +42,6 @@ extern crate serde;
 #[cfg(feature = "serde_type")]
 extern crate serde_json;
 
-extern crate handlebars;
 extern crate plugin;
 extern crate walkdir;
 #[cfg(feature = "watch")]
