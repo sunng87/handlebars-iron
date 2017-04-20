@@ -3,7 +3,6 @@
 extern crate iron;
 extern crate router;
 extern crate env_logger;
-extern crate handlebars;
 extern crate handlebars_iron as hbs;
 #[cfg(not(feature = "serde_type"))]
 extern crate rustc_serialize;
@@ -21,7 +20,7 @@ use iron::prelude::*;
 use iron::status;
 use router::Router;
 use hbs::{Template, HandlebarsEngine, DirectorySource, MemorySource};
-use handlebars::{Handlebars, RenderContext, RenderError, Helper};
+use hbs::handlebars::{Handlebars, RenderContext, RenderError, Helper};
 
 #[cfg(not(feature = "serde_type"))]
 mod data {
@@ -72,7 +71,7 @@ mod data {
 
 #[cfg(feature = "serde_type")]
 mod data {
-    use handlebars::to_json;
+    use hbs::handlebars::to_json;
     use serde_json::value::{Value, Map};
 
     #[derive(Serialize, Debug)]
@@ -162,15 +161,15 @@ fn main() {
                                                     _: &Handlebars,
                                                     _: &mut RenderContext|
                                                     -> Result<(), RenderError> {
-                                              Ok(())
-                                          }));
+                                                       Ok(())
+                                                   }));
 
 
     let mut router = Router::new();
     router.get("/", index, "index")
-          .get("/mem", memory, "memory")
-          .get("/temp", temp, "temp")
-          .get("/plain", plain, "plain");
+        .get("/mem", memory, "memory")
+        .get("/temp", temp, "temp")
+        .get("/plain", plain, "plain");
     let mut chain = Chain::new(router);
     chain.link_after(hbse);
     println!("Server running at http://localhost:3000/");
