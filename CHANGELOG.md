@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.23.1] - 2017-04-21
+
+### Changed
+
+* Re-export handlebars crate from handlebars-iron
+
 ## [0.23.0] - 2017-01-28
 
 ### Changed
