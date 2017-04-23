@@ -9,11 +9,7 @@ use plugin::Plugin as PluginFor;
 use iron::headers::ContentType;
 
 use handlebars::{Handlebars, TemplateRenderError, to_json};
-#[cfg(not(feature = "serde_type"))]
-use serialize::json::{ToJson, Json};
-#[cfg(feature = "serde_type")]
 use serde::ser::Serialize as ToJson;
-#[cfg(feature = "serde_type")]
 use serde_json::value::Value as Json;
 
 use source::{Source, SourceError};
@@ -179,29 +175,6 @@ mod test {
     }
 
     #[test]
-    #[cfg(not(feature = "serde_type"))]
-    fn test_resp_set() {
-        let mut resp = hello_world().ok().expect("response expected");
-
-        // use response plugin to retrieve a cloned template for testing
-        match resp.get::<HandlebarsEngine>() {
-            Ok(h) => {
-                assert_eq!(h.name.unwrap(), "index".to_string());
-                assert_eq!(h.value
-                            .as_object()
-                            .unwrap()
-                            .get(&"title".to_string())
-                            .unwrap()
-                            .as_string()
-                            .unwrap(),
-                           "Handlebars on Iron");
-            }
-            _ => panic!("template expected"),
-        }
-    }
-
-    #[test]
-    #[cfg(feature = "serde_type")]
     fn test_resp_set() {
         let mut resp = hello_world().ok().expect("response expected");
 
@@ -224,29 +197,6 @@ mod test {
 
 
     #[test]
-    #[cfg(not(feature = "serde_type"))]
-    fn test_resp_set2() {
-        let mut resp = hello_world2().ok().expect("response expected");
-
-        // use response plugin to retrieve a cloned template for testing
-        match resp.get::<HandlebarsEngine>() {
-            Ok(h) => {
-                assert_eq!(h.content.unwrap(), "{{title}}".to_string());
-                assert_eq!(h.value
-                            .as_object()
-                            .unwrap()
-                            .get(&"title".to_string())
-                            .unwrap()
-                            .as_string()
-                            .unwrap(),
-                           "Handlebars on Iron");
-            }
-            _ => panic!("template expected"),
-        }
-    }
-
-    #[test]
-    #[cfg(feature = "serde_type")]
     fn test_resp_set2() {
         let mut resp = hello_world2().ok().expect("response expected");
 
