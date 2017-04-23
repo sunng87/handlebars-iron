@@ -21,6 +21,8 @@ mod data {
     use iron::status;
     use hbs::Template;
 
+    use serde_json::value::Value;
+
     #[derive(Serialize)]
     struct Team {
         name: String,
@@ -28,7 +30,7 @@ mod data {
     }
 
 
-    fn make_data() -> BTreeMap<String, Json> {
+    fn make_data() -> BTreeMap<String, Value> {
         let mut data = BTreeMap::new();
 
         data.insert("year".to_string(), json!("2015"));

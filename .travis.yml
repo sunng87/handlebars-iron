@@ -9,6 +9,6 @@ before_script:
     export PATH=$HOME/.local/bin:$PATH
 script:
   - |
-      cargo test &&
-      cargo test --features watch &&
+      cargo test --features unstable &&
+      cargo test --features "watch unstable" &&
       travis-cargo --only nightly test

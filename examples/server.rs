@@ -1,5 +1,3 @@
-#![cfg_attr(all(feature="serde_type"), feature(proc_macro))]
-
 extern crate iron;
 extern crate router;
 extern crate env_logger;
