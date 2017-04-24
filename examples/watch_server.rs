@@ -1,8 +1,11 @@
 #![allow(dead_code, unused_imports)]
 extern crate iron;
 extern crate handlebars_iron as hbs;
-#[cfg(not(feature = "serde_type"))]
-extern crate rustc_serialize;
+extern crate serde;
+#[macro_use]
+extern crate serde_json;
+#[macro_use]
+extern crate serde_derive;
 extern crate env_logger;
 
 use iron::prelude::*;
@@ -12,34 +15,27 @@ use hbs::Watchable;
 
 use std::sync::Arc;
 
-#[cfg(not(feature = "serde_type"))]
 mod data {
     use std::collections::BTreeMap;
-    use rustc_serialize::json::{ToJson, Json};
     use iron::prelude::*;
     use iron::status;
     use hbs::Template;
 
+    use serde_json::value::Value;
+
+    #[derive(Serialize)]
     struct Team {
         name: String,
         pts: u16,
     }
 
-    impl ToJson for Team {
-        fn to_json(&self) -> Json {
-            let mut m: BTreeMap<String, Json> = BTreeMap::new();
-            m.insert("name".to_string(), self.name.to_json());
-            m.insert("pts".to_string(), self.pts.to_json());
-            m.to_json()
-        }
-    }
 
-    fn make_data() -> BTreeMap<String, Json> {
+    fn make_data() -> BTreeMap<String, Value> {
         let mut data = BTreeMap::new();
 
-        data.insert("year".to_string(), "2015".to_json());
+        data.insert("year".to_string(), json!("2015"));
 
-        let teams = vec![Team {
+        let teams = json!(vec![Team {
                              name: "Jiangsu Sainty".to_string(),
                              pts: 43u16,
                          },
@@ -54,10 +50,10 @@ mod data {
                          Team {
                              name: "Shandong Luneng".to_string(),
                              pts: 12u16,
-                         }];
+                         }]);
 
-        data.insert("teams".to_string(), teams.to_json());
-        data.insert("engine".to_string(), "rustc_serialize".to_json());
+        data.insert("teams".to_string(), teams);
+        data.insert("engine".to_string(), json!("rustc_serialize"));
         data
     }
 

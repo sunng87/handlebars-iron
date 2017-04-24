@@ -1,16 +1,9 @@
-#![cfg_attr(all(feature="serde_type"), feature(proc_macro))]
-
 extern crate iron;
 extern crate router;
 extern crate env_logger;
 extern crate handlebars_iron as hbs;
-#[cfg(not(feature = "serde_type"))]
-extern crate rustc_serialize;
-#[cfg(feature = "serde_type")]
 extern crate serde;
-#[cfg(feature = "serde_type")]
 extern crate serde_json;
-#[cfg(feature = "serde_type")]
 #[macro_use]
 extern crate serde_derive;
 #[macro_use]
@@ -22,54 +15,6 @@ use router::Router;
 use hbs::{Template, HandlebarsEngine, DirectorySource, MemorySource};
 use hbs::handlebars::{Handlebars, RenderContext, RenderError, Helper};
 
-#[cfg(not(feature = "serde_type"))]
-mod data {
-    use rustc_serialize::json::{ToJson, Json};
-    use std::collections::BTreeMap;
-
-    pub struct Team {
-        name: String,
-        pts: u16,
-    }
-
-    impl ToJson for Team {
-        fn to_json(&self) -> Json {
-            let mut m: BTreeMap<String, Json> = BTreeMap::new();
-            m.insert("name".to_string(), self.name.to_json());
-            m.insert("pts".to_string(), self.pts.to_json());
-            m.to_json()
-        }
-    }
-
-    pub fn make_data() -> BTreeMap<String, Json> {
-        let mut data = BTreeMap::new();
-
-        data.insert("year".to_string(), "2015".to_json());
-
-        let teams = vec![Team {
-                             name: "Jiangsu Sainty".to_string(),
-                             pts: 43u16,
-                         },
-                         Team {
-                             name: "Beijing Guoan".to_string(),
-                             pts: 27u16,
-                         },
-                         Team {
-                             name: "Guangzhou Evergrand".to_string(),
-                             pts: 22u16,
-                         },
-                         Team {
-                             name: "Shandong Luneng".to_string(),
-                             pts: 12u16,
-                         }];
-
-        data.insert("teams".to_string(), teams.to_json());
-        data.insert("engine".to_string(), "rustc_serialize".to_json());
-        data
-    }
-}
-
-#[cfg(feature = "serde_type")]
 mod data {
     use hbs::handlebars::to_json;
     use serde_json::value::{Value, Map};

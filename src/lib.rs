@@ -35,11 +35,7 @@ pub extern crate handlebars;
 
 extern crate iron;
 
-#[cfg(not(feature = "serde_type"))]
-extern crate rustc_serialize as serialize;
-#[cfg(feature = "serde_type")]
 extern crate serde;
-#[cfg(feature = "serde_type")]
 extern crate serde_json;
 
 extern crate plugin;
