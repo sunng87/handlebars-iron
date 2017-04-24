@@ -10,5 +10,4 @@ before_script:
 script:
   - |
       cargo test  &&
-      cargo test --features watch &&
-      travis-cargo --only nightly test
+      cargo test --features watch
