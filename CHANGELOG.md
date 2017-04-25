@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.24.0] - 2017-04-25
+
+### Changed
+
+* Updated to handlebars 0.26.x, removed rustc_serialize support.
+
 ## [0.23.1] - 2017-04-21
 
 ### Changed
