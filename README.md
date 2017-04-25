@@ -28,6 +28,7 @@ handlebars-iron | handlebars | iron
 0.21.x | 0.24.x | 0.4.x
 0.22.x | 0.24.x | 0.5.x
 0.23.x | 0.25.x (serde 0.9) | 0.5.x
+0.24.x | 0.26.x (serde 1.0) | 0.5.x
 
 ## Usage
 
@@ -67,10 +68,7 @@ You can find more information about custom helper in [handlebars-rust
 document](https://github.com/sunng87/handlebars-rust#extensible-helper-system).
 
 In your handler, set `Template` to response. As required by
-Handlebars-rust, your data should impl `serialize::json::ToJson`. If
-you are on nightly channel, it is highly recommended to use
-[tojson_macros](https://github.com/sunng87/tojson_macros) to generate
-default `ToJson` implementation without repeating yourself.
+Handlebars-rust, your data should impl `serde::Serialize`.
 
 For `DirectorySource`, handlebars engine will walk the directory
 specified by `prefix`, try to register all templates matches the
@@ -142,17 +140,6 @@ handlebars-iron = ...
 Check `examples/watch_server.rs` for further information. To test it:
 `RUST_LOG=handlebars_iron=info cargo run --example watch_server
 --features watch`.
-
-## Serde
-
-From 0.11.0, by enabling feature `serde_type`, you can also use
-[serde_json](https://github.com/serde-rs/json) as type
-system. Typically you can annotate your type with
-`#[derive(Serialize)]` to make it work as template data.
-
-You can find an working example in `examples/server.rs` and try to run
-it via: `cargo run --features unstable --example server
---no-default-features`
 
 ## Using handlebars-iron?
 

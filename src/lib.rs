@@ -24,7 +24,7 @@
 //!
 //! ## Usage
 //!
-//! From any of your handler, you can set template name and data into our `Template` struct. Remember you need to make your data `ToJson`-able, which is required by handlebars-rust.
+//! From any of your handler, you can set template name and data into our `Template` struct. Remember you need to make your data implements `serde::Serialize`, which is required by handlebars-rust.
 //!
 //! We have implemented Modifier for `Template` on `Response`, so you can just use `response.set` to put set template into response and let it processed by our middleware.
 //!
