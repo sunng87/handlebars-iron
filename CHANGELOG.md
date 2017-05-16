@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.24.1] - 2017-05-16
+
+### Changed
+
+* Added `Send` mark to `SourceError` inner type
+
 ## [0.24.0] - 2017-04-25
 
 ### Changed
