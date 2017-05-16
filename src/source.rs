@@ -4,7 +4,7 @@ use std::fmt;
 
 #[derive(Debug)]
 pub struct SourceError {
-    pub cause: Box<Error>
+    pub cause: Box<Error + Send>,
 }
 
 impl fmt::Display for SourceError {
