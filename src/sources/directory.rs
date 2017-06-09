@@ -34,7 +34,7 @@ fn filter_file(entry: &DirEntry, suffix: &OsStr) -> bool {
                  ds.starts_with(".") || ds.starts_with("#") ||
                  !ds.ends_with(suffix.to_string_lossy().as_ref())
              })
-        .unwrap_or(false)
+        .unwrap_or(true)
 }
 
 impl Source for DirectorySource {
