@@ -22,7 +22,7 @@ fn test_template() {
 }
 
 #[test]
-fn test_template2() {
+fn test_template_without_slash() {
     let mut hbse = HandlebarsEngine::new();
     let src = Box::new(DirectorySource::new("./examples/templates", ".hbs"));
 
