@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.25.0] -2017-06-09
+
+### Changed
+
+* Updated handlebars to 0.27.x
+* Changed internal type of `DirectorySource` from `String` to `OsString`
+
 ## [0.24.1] - 2017-05-16
 
 ### Changed
