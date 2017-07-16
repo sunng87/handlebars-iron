@@ -15,7 +15,7 @@ readme = "README.md"
 
 iron = "^0.5.0"
 #handlebars = { path = "../handlebars", default-features = false }
-handlebars = "^0.27.0"
+handlebars = "^0.28.1"
 serde = "^1.0.0"
 serde_json = "^1.0.0"
 plugin = "^0.2.6"
