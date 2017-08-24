@@ -1,5 +1,11 @@
 # Change Log
 
+## [Unreleased] - 2017-08-24
+
+### Changed
+
+* Updated handlebars to 0.29.0
+
 ## [0.25.1] - 2017-07-16
 
 ### Changed
