@@ -109,19 +109,18 @@ impl HandlebarsEngine {
 
 impl AfterMiddleware for HandlebarsEngine {
     fn after(&self, _: &mut Request, mut resp: Response) -> IronResult<Response> {
-        let page_wrapper = resp.extensions
-                               .remove::<HandlebarsEngine>()
-                               .and_then(|h| {
-                                   let hbs = self.registry.read().unwrap();
-                                   if let Some(ref name) = h.name {
-                                       return Some(hbs.render(name, &h.value)
-                                                      .map_err(TemplateRenderError::from));
-                                   } else if let Some(ref content) = h.content {
-                                       return Some(hbs.template_render(content, &h.value));
-                                   } else {
-                                       unreachable!();
-                                   }
-                               });
+        let page_wrapper = resp.extensions.remove::<HandlebarsEngine>().and_then(|h| {
+            let hbs = self.registry.read().unwrap();
+            if let Some(ref name) = h.name {
+                Some(hbs.render(name, &h.value).map_err(
+                    TemplateRenderError::from,
+                ))
+            } else if let Some(ref content) = h.content {
+                Some(hbs.template_render(content, &h.value))
+            } else {
+                None
+            }
+        });
 
         match page_wrapper {
             Some(page_result) => {
@@ -182,14 +181,16 @@ mod test {
         match resp.get::<HandlebarsEngine>() {
             Ok(h) => {
                 assert_eq!(h.name.unwrap(), "index".to_string());
-                assert_eq!(h.value
-                            .as_object()
-                            .unwrap()
-                            .get(&"title".to_string())
-                            .unwrap()
-                            .as_str()
-                            .unwrap(),
-                           "Handlebars on Iron");
+                assert_eq!(
+                    h.value
+                        .as_object()
+                        .unwrap()
+                        .get(&"title".to_string())
+                        .unwrap()
+                        .as_str()
+                        .unwrap(),
+                    "Handlebars on Iron"
+                );
             }
             _ => panic!("template expected"),
         }
@@ -204,14 +205,16 @@ mod test {
         match resp.get::<HandlebarsEngine>() {
             Ok(h) => {
                 assert_eq!(h.content.unwrap(), "{{title}}".to_string());
-                assert_eq!(h.value
-                            .as_object()
-                            .unwrap()
-                            .get(&"title".to_string())
-                            .unwrap()
-                            .as_str()
-                            .unwrap(),
-                           "Handlebars on Iron");
+                assert_eq!(
+                    h.value
+                        .as_object()
+                        .unwrap()
+                        .get(&"title".to_string())
+                        .unwrap()
+                        .as_str()
+                        .unwrap(),
+                    "Handlebars on Iron"
+                );
             }
             _ => panic!("template expected"),
         }
@@ -221,12 +224,14 @@ mod test {
     fn test_register_helper() {
         let hbs = HandlebarsEngine::new();
         let mut reg = hbs.handlebars_mut();
-        reg.register_helper("ignore",
-                            Box::new(|_: &Helper,
-                                      _: &Handlebars,
-                                      _: &mut RenderContext|
-                                      -> Result<(), RenderError> {
-                                Ok(())
-                            }));
+        reg.register_helper(
+            "ignore",
+            Box::new(|_: &Helper,
+             _: &Handlebars,
+             _: &mut RenderContext|
+             -> Result<(), RenderError> {
+                Ok(())
+            }),
+        );
     }
 }
