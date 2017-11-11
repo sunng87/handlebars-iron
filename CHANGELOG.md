@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.26.0] - 2017-11-11
+
+### Changed
+
+* updated to iron 0.6
+
 ## [0.25.2] - 2017-08-24
 
 ### Changed
