@@ -153,7 +153,7 @@ mod test {
     use std::collections::BTreeMap;
     use iron::prelude::*;
     use middleware::*;
-    use handlebars::{Handlebars, RenderError, RenderContext, Helper};
+    use handlebars::{Context, Handlebars, Output, RenderError, RenderContext, Helper};
 
     fn hello_world() -> IronResult<Response> {
         let resp = Response::new();
@@ -227,8 +227,10 @@ mod test {
         reg.register_helper(
             "ignore",
             Box::new(|_: &Helper,
-             _: &Handlebars,
-             _: &mut RenderContext|
+                     _: &Handlebars,
+                     _: &Context,
+                     _: &mut RenderContext,
+                     _: &mut Output|
              -> Result<(), RenderError> {
                 Ok(())
             }),

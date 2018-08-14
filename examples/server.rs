@@ -13,7 +13,7 @@ use iron::prelude::*;
 use iron::status;
 use router::Router;
 use hbs::{Template, HandlebarsEngine, DirectorySource, MemorySource};
-use hbs::handlebars::{Handlebars, RenderContext, RenderError, Helper};
+use hbs::handlebars::{Context, Handlebars, Output, RenderContext, RenderError, Helper};
 
 mod data {
     use hbs::handlebars::to_json;
@@ -103,8 +103,10 @@ fn main() {
 
     hbse.handlebars_mut().register_helper("some_helper",
                                           Box::new(|_: &Helper,
-                                                    _: &Handlebars,
-                                                    _: &mut RenderContext|
+                                                   _: &Handlebars,
+                                                   _: &Context,
+                                                   _: &mut RenderContext,
+                                                   _: &mut Output|
                                                     -> Result<(), RenderError> {
                                                        Ok(())
                                                    }));
