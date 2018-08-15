@@ -21,8 +21,6 @@ serde_json = "^1.0.0"
 plugin = "^0.2.6"
 notify = { version = "^4.0", optional = true }
 log = "^0.4"
-walkdir = "^1.0"
-
 
 [features]
 watch = ["notify"]

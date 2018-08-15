@@ -39,7 +39,6 @@ extern crate serde;
 extern crate serde_json;
 
 extern crate plugin;
-extern crate walkdir;
 #[cfg(feature = "watch")]
 extern crate notify;
 
