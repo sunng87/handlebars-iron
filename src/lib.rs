@@ -38,15 +38,15 @@ extern crate iron;
 extern crate serde;
 extern crate serde_json;
 
-extern crate plugin;
 #[cfg(feature = "watch")]
 extern crate notify;
+extern crate plugin;
 
 #[macro_use]
 extern crate log;
 
-pub use self::middleware::Template;
 pub use self::middleware::HandlebarsEngine;
+pub use self::middleware::Template;
 pub use self::source::{Source, SourceError};
 pub use self::sources::directory::DirectorySource;
 pub use self::sources::memory::MemorySource;
@@ -54,7 +54,7 @@ pub use self::sources::memory::MemorySource;
 pub use self::watch::Watchable;
 
 mod middleware;
-#[cfg(feature = "watch")]
-mod watch;
 mod source;
 mod sources;
+#[cfg(feature = "watch")]
+mod watch;

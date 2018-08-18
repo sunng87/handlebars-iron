@@ -1,11 +1,11 @@
 use middleware::HandlebarsEngine;
 
-use notify::{RecommendedWatcher, Error, Watcher, RecursiveMode};
+use notify::{Error, RecommendedWatcher, RecursiveMode, Watcher};
 use std::path::Path;
-use std::time::Duration;
 use std::sync::mpsc::channel;
 use std::sync::Arc;
 use std::thread;
+use std::time::Duration;
 
 fn _watch(p: &Path, hbs: &Arc<HandlebarsEngine>) -> Result<(), Error> {
     let (tx, rx) = channel();
@@ -28,13 +28,11 @@ impl Watchable for Arc<HandlebarsEngine> {
     fn watch(&self, path: &str) {
         let hbs = self.clone();
         let watch_path = path.to_owned();
-        thread::spawn(move || {
-            match _watch(Path::new(&watch_path), &hbs) {
-                Ok(_) => (),
-                Err(e) => {
-                    warn!("Failed to watch directory: {:?}", e);
-                    panic!();
-                }
+        thread::spawn(move || match _watch(Path::new(&watch_path), &hbs) {
+            Ok(_) => (),
+            Err(e) => {
+                warn!("Failed to watch directory: {:?}", e);
+                panic!();
             }
         });
     }

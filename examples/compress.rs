@@ -1,9 +1,9 @@
-#![cfg_attr(all(feature="serde_type"), feature(proc_macro))]
+#![cfg_attr(all(feature = "serde_type"), feature(proc_macro))]
 
-extern crate iron;
-extern crate router;
 extern crate env_logger;
 extern crate handlebars_iron as hbs;
+extern crate iron;
+extern crate router;
 extern crate serde;
 extern crate serde_json;
 #[macro_use]
@@ -12,19 +12,19 @@ extern crate serde_derive;
 extern crate maplit;
 extern crate flate2;
 
-use iron::prelude::*;
-use iron::{AfterMiddleware, status};
+use hbs::handlebars::{Context, Handlebars, Helper, Output, RenderContext, RenderError};
+use hbs::{DirectorySource, HandlebarsEngine, MemorySource, Template};
 use iron::headers::{ContentEncoding, Encoding};
+use iron::prelude::*;
+use iron::{status, AfterMiddleware};
 use router::Router;
-use hbs::{Template, HandlebarsEngine, DirectorySource, MemorySource};
-use hbs::handlebars::{Context, Handlebars, Output, RenderContext, RenderError, Helper};
 
-use flate2::Compression;
 use flate2::write::GzEncoder;
+use flate2::Compression;
 
 mod data {
     use hbs::handlebars::to_json;
-    use serde_json::value::{Value, Map};
+    use serde_json::value::{Map, Value};
 
     #[derive(Serialize, Debug)]
     pub struct Team {
@@ -37,22 +37,24 @@ mod data {
 
         data.insert("year".to_string(), to_json(&"2015".to_owned()));
 
-        let teams = vec![Team {
-                             name: "Jiangsu Sainty".to_string(),
-                             pts: 43u16,
-                         },
-                         Team {
-                             name: "Beijing Guoan".to_string(),
-                             pts: 27u16,
-                         },
-                         Team {
-                             name: "Guangzhou Evergrand".to_string(),
-                             pts: 22u16,
-                         },
-                         Team {
-                             name: "Shandong Luneng".to_string(),
-                             pts: 12u16,
-                         }];
+        let teams = vec![
+            Team {
+                name: "Jiangsu Sainty".to_string(),
+                pts: 43u16,
+            },
+            Team {
+                name: "Beijing Guoan".to_string(),
+                pts: 27u16,
+            },
+            Team {
+                name: "Guangzhou Evergrand".to_string(),
+                pts: 22u16,
+            },
+            Team {
+                name: "Shandong Luneng".to_string(),
+                pts: 12u16,
+            },
+        ];
 
         data.insert("teams".to_string(), to_json(&teams));
         data.insert("engine".to_string(), to_json(&"serde_json".to_owned()));
@@ -66,22 +68,26 @@ use data::*;
 fn index(_: &mut Request) -> IronResult<Response> {
     let mut resp = Response::new();
     let data = make_data();
-    resp.set_mut(Template::new("some/path/hello", data)).set_mut(status::Ok);
+    resp.set_mut(Template::new("some/path/hello", data))
+        .set_mut(status::Ok);
     Ok(resp)
 }
 
 fn memory(_: &mut Request) -> IronResult<Response> {
     let mut resp = Response::new();
     let data = make_data();
-    resp.set_mut(Template::new("memory", data)).set_mut(status::Ok);
+    resp.set_mut(Template::new("memory", data))
+        .set_mut(status::Ok);
     Ok(resp)
 }
 
 fn temp(_: &mut Request) -> IronResult<Response> {
     let mut resp = Response::new();
     let data = make_data();
-    resp.set_mut(Template::with(include_str!("templates/some/path/hello.hbs"), data))
-        .set_mut(status::Ok);
+    resp.set_mut(Template::with(
+        include_str!("templates/some/path/hello.hbs"),
+        data,
+    )).set_mut(status::Ok);
     Ok(resp)
 }
 
@@ -94,7 +100,6 @@ pub struct GzMiddleware;
 
 impl AfterMiddleware for GzMiddleware {
     fn after(&self, _: &mut Request, mut resp: Response) -> IronResult<Response> {
-
         let compressed_bytes = resp.body.as_mut().map(|b| {
             let mut encoder = GzEncoder::new(Vec::new(), Compression::Best);
             {
@@ -118,7 +123,10 @@ fn main() {
     let mut hbse = HandlebarsEngine::new();
 
     // add a directory source, all files with .hbs suffix will be loaded as template
-    hbse.add(Box::new(DirectorySource::new("./examples/templates/", ".hbs")));
+    hbse.add(Box::new(DirectorySource::new(
+        "./examples/templates/",
+        ".hbs",
+    )));
 
     let mem_templates = btreemap! {
         "memory".to_owned() => include_str!("templates/some/path/hello.hbs").to_owned()
@@ -131,19 +139,21 @@ fn main() {
         panic!("{}", r);
     }
 
-    hbse.handlebars_mut().register_helper("some_helper",
-                                          Box::new(|_: &Helper,
-                                                   _: &Handlebars,
-                                                   _: &Context,
-                                                   _: &mut RenderContext,
-                                                   _: &mut Output|
-                                                    -> Result<(), RenderError> {
-                                                       Ok(())
-                                                   }));
-
+    hbse.handlebars_mut().register_helper(
+        "some_helper",
+        Box::new(
+            |_: &Helper,
+             _: &Handlebars,
+             _: &Context,
+             _: &mut RenderContext,
+             _: &mut Output|
+             -> Result<(), RenderError> { Ok(()) },
+        ),
+    );
 
     let mut router = Router::new();
-    router.get("/", index, "index")
+    router
+        .get("/", index, "index")
         .get("/mem", memory, "memory")
         .get("/temp", temp, "temp")
         .get("/plain", plain, "plain");

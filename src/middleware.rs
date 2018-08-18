@@ -1,14 +1,14 @@
-use std::sync::{RwLock, RwLockWriteGuard};
 use std::error::Error;
+use std::sync::{RwLock, RwLockWriteGuard};
 
+use iron::headers::ContentType;
+use iron::modifier::Modifier;
 use iron::prelude::*;
 use iron::status;
-use iron::{AfterMiddleware, typemap};
-use iron::modifier::Modifier;
+use iron::{typemap, AfterMiddleware};
 use plugin::Plugin as PluginFor;
-use iron::headers::ContentType;
 
-use handlebars::{Handlebars, TemplateRenderError, to_json};
+use handlebars::{to_json, Handlebars, TemplateRenderError};
 use serde::ser::Serialize as ToJson;
 use serde_json::value::Value as Json;
 
@@ -68,7 +68,6 @@ impl PluginFor<Response> for HandlebarsEngine {
     }
 }
 
-
 impl HandlebarsEngine {
     /// create a handlebars template engine
     pub fn new() -> HandlebarsEngine {
@@ -112,9 +111,10 @@ impl AfterMiddleware for HandlebarsEngine {
         let page_wrapper = resp.extensions.remove::<HandlebarsEngine>().and_then(|h| {
             let hbs = self.registry.read().unwrap();
             if let Some(ref name) = h.name {
-                Some(hbs.render(name, &h.value).map_err(
-                    TemplateRenderError::from,
-                ))
+                Some(
+                    hbs.render(name, &h.value)
+                        .map_err(TemplateRenderError::from),
+                )
             } else if let Some(ref content) = h.content {
                 Some(hbs.render_template(content, &h.value))
             } else {
@@ -123,21 +123,19 @@ impl AfterMiddleware for HandlebarsEngine {
         });
 
         match page_wrapper {
-            Some(page_result) => {
-                match page_result {
-                    Ok(page) => {
-                        if !resp.headers.has::<ContentType>() {
-                            resp.headers.set(ContentType::html());
-                        }
-                        resp.set_mut(page);
-                        Ok(resp)
+            Some(page_result) => match page_result {
+                Ok(page) => {
+                    if !resp.headers.has::<ContentType>() {
+                        resp.headers.set(ContentType::html());
                     }
-                    Err(e) => {
-                        info!("{}", e.description());
-                        Err(IronError::new(e, status::InternalServerError))
-                    }
+                    resp.set_mut(page);
+                    Ok(resp)
                 }
-            }
+                Err(e) => {
+                    info!("{}", e.description());
+                    Err(IronError::new(e, status::InternalServerError))
+                }
+            },
             None => Ok(resp),
         }
     }
@@ -150,10 +148,10 @@ impl AfterMiddleware for HandlebarsEngine {
 
 #[cfg(test)]
 mod test {
-    use std::collections::BTreeMap;
+    use handlebars::{Context, Handlebars, Helper, Output, RenderContext, RenderError};
     use iron::prelude::*;
     use middleware::*;
-    use handlebars::{Context, Handlebars, Output, RenderError, RenderContext, Helper};
+    use std::collections::BTreeMap;
 
     fn hello_world() -> IronResult<Response> {
         let resp = Response::new();
@@ -196,7 +194,6 @@ mod test {
         }
     }
 
-
     #[test]
     fn test_resp_set2() {
         let mut resp = hello_world2().ok().expect("response expected");
@@ -226,14 +223,14 @@ mod test {
         let mut reg = hbs.handlebars_mut();
         reg.register_helper(
             "ignore",
-            Box::new(|_: &Helper,
-                     _: &Handlebars,
-                     _: &Context,
-                     _: &mut RenderContext,
-                     _: &mut Output|
-             -> Result<(), RenderError> {
-                Ok(())
-            }),
+            Box::new(
+                |_: &Helper,
+                 _: &Handlebars,
+                 _: &Context,
+                 _: &mut RenderContext,
+                 _: &mut Output|
+                 -> Result<(), RenderError> { Ok(()) },
+            ),
         );
     }
 }

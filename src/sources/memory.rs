@@ -1,6 +1,6 @@
-use ::source::{Source, SourceError};
-use std::collections::BTreeMap;
 use handlebars::Handlebars;
+use source::{Source, SourceError};
+use std::collections::BTreeMap;
 
 pub struct MemorySource(pub BTreeMap<String, String>);
 

@@ -1,7 +1,7 @@
 extern crate handlebars_iron as hbsi;
 
+use hbsi::{DirectorySource, HandlebarsEngine};
 use std::error::Error;
-use hbsi::{HandlebarsEngine, DirectorySource};
 
 #[test]
 fn test_template() {

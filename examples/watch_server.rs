@@ -1,6 +1,6 @@
 #![allow(dead_code, unused_imports)]
-extern crate iron;
 extern crate handlebars_iron as hbs;
+extern crate iron;
 extern crate serde;
 #[macro_use]
 extern crate serde_json;
@@ -8,18 +8,18 @@ extern crate serde_json;
 extern crate serde_derive;
 extern crate env_logger;
 
-use iron::prelude::*;
-use hbs::{HandlebarsEngine, DirectorySource};
 #[cfg(feature = "watch")]
 use hbs::Watchable;
+use hbs::{DirectorySource, HandlebarsEngine};
+use iron::prelude::*;
 
 use std::sync::Arc;
 
 mod data {
-    use std::collections::BTreeMap;
+    use hbs::Template;
     use iron::prelude::*;
     use iron::status;
-    use hbs::Template;
+    use std::collections::BTreeMap;
 
     use serde_json::value::Value;
 
@@ -29,28 +29,29 @@ mod data {
         pts: u16,
     }
 
-
     fn make_data() -> BTreeMap<String, Value> {
         let mut data = BTreeMap::new();
 
         data.insert("year".to_string(), json!("2015"));
 
-        let teams = json!(vec![Team {
-                             name: "Jiangsu Sainty".to_string(),
-                             pts: 43u16,
-                         },
-                         Team {
-                             name: "Beijing Guoan".to_string(),
-                             pts: 27u16,
-                         },
-                         Team {
-                             name: "Guangzhou Evergrand".to_string(),
-                             pts: 22u16,
-                         },
-                         Team {
-                             name: "Shandong Luneng".to_string(),
-                             pts: 12u16,
-                         }]);
+        let teams = json!(vec![
+            Team {
+                name: "Jiangsu Sainty".to_string(),
+                pts: 43u16,
+            },
+            Team {
+                name: "Beijing Guoan".to_string(),
+                pts: 27u16,
+            },
+            Team {
+                name: "Guangzhou Evergrand".to_string(),
+                pts: 22u16,
+            },
+            Team {
+                name: "Shandong Luneng".to_string(),
+                pts: 12u16,
+            }
+        ]);
 
         data.insert("teams".to_string(), teams);
         data.insert("engine".to_string(), json!("rustc_serialize"));
@@ -62,11 +63,11 @@ mod data {
         let mut resp = Response::new();
 
         let data = make_data();
-        resp.set_mut(Template::new("index", data)).set_mut(status::Ok);
+        resp.set_mut(Template::new("index", data))
+            .set_mut(status::Ok);
         Ok(resp)
     }
 }
-
 
 #[cfg(feature = "watch")]
 fn main() {

@@ -1,16 +1,17 @@
-extern crate iron;
 extern crate handlebars_iron as hbs;
+extern crate iron;
 
+use hbs::{DirectorySource, HandlebarsEngine, Template};
 use iron::prelude::*;
 use iron::{status, AfterMiddleware};
-use hbs::{Template, HandlebarsEngine, DirectorySource};
 
 /// the handler
 fn hello_world(_: &mut Request) -> IronResult<Response> {
     let mut resp = Response::new();
 
     let data = "".to_owned();
-    resp.set_mut(Template::new("not-exist", data)).set_mut(status::Ok);
+    resp.set_mut(Template::new("not-exist", data))
+        .set_mut(status::Ok);
     Ok(resp)
 }
 
@@ -26,12 +27,14 @@ impl AfterMiddleware for ErrorReporter {
 fn main() {
     let mut chain = Chain::new(hello_world);
     let mut hbse = HandlebarsEngine::new();
-    hbse.add(Box::new(DirectorySource::new("./examples/templates/", ".hbs")));
+    hbse.add(Box::new(DirectorySource::new(
+        "./examples/templates/",
+        ".hbs",
+    )));
     // success of panic
     if let Err(r) = hbse.reload() {
         panic!("{}", r);
     }
-
 
     chain.link_after(hbse);
     chain.link_after(ErrorReporter);

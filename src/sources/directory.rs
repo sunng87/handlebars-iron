@@ -11,7 +11,8 @@ pub struct DirectorySource {
 
 impl DirectorySource {
     pub fn new<P>(prefix: P, suffix: &'static str) -> DirectorySource
-        where P: Into<PathBuf>
+    where
+        P: Into<PathBuf>,
     {
         DirectorySource {
             prefix: prefix.into(),

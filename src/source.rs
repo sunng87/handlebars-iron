@@ -25,13 +25,17 @@ impl Error for SourceError {
 
 impl From<TemplateError> for SourceError {
     fn from(err: TemplateError) -> SourceError {
-        SourceError { cause: Box::new(err) }
+        SourceError {
+            cause: Box::new(err),
+        }
     }
 }
 
 impl From<TemplateFileError> for SourceError {
     fn from(err: TemplateFileError) -> SourceError {
-        SourceError { cause: Box::new(err) }
+        SourceError {
+            cause: Box::new(err),
+        }
     }
 }
 
