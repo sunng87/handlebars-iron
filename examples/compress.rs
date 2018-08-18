@@ -1,5 +1,3 @@
-#![cfg_attr(all(feature = "serde_type"), feature(proc_macro))]
-
 extern crate env_logger;
 extern crate handlebars_iron as hbs;
 extern crate iron;
