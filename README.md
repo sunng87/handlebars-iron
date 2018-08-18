@@ -7,7 +7,6 @@ for the [Iron web framework](http://ironframework.io).
 [![Build
 Status](https://travis-ci.org/sunng87/handlebars-iron.svg?branch=master)](https://travis-ci.org/sunng87/handlebars-iron)
 [![](http://meritbadge.herokuapp.com/handlebars-iron)](https://crates.io/crates/handlebars-iron)
-[![Gitter](https://img.shields.io/gitter/room/sunng87/handlebars-rust.svg?maxAge=2592000)](https://gitter.im/sunng87/handlebars-rust)
 
 This library, together with handlebars, iron and hyper, works on
 both stable and nightly rust.
@@ -31,6 +30,7 @@ handlebars-iron | handlebars | iron
 0.24.x | 0.26.x (serde 1.0) | 0.5.x
 0.25.x | 0.29.x | 0.5.x
 0.26.x | 0.32.x | 0.6.x
+0.27.x | 1.x | 0.6.x
 
 ## Usage
 
@@ -111,7 +111,7 @@ Since this is simple library, you may run this
 [example](https://github.com/sunng87/handlebars-iron/blob/master/examples/server.rs)
 with `RUST_LOG=handlebars_iron=info cargo run --example server`
 first, and
-[documentation](https://sunng87.github.io/handlebars-iron/handlebars_iron/)
+[documentation](https://docs.rs/crate/handlebars-iron)
 then.
 
 Rust and its ecosystem are still in early stage, this
