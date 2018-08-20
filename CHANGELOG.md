@@ -1,5 +1,13 @@
 # Change Log
 
+## [Unreleased] - ReleaseDate
+
+### Changed
+
+* Iron is back to life and new release should be coming soon
+* Updated to handlebars 1.0 and moved `DirectorySource` to handlebars
+  core library.
+
 ## [0.26.0] - 2017-11-11
 
 ### Changed
