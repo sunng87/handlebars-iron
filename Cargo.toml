@@ -1,7 +1,7 @@
 [package]
 
 name = "handlebars-iron"
-version = "0.28.0"
+version = "0.28.1-alpha.0"
 authors = ["Ning Sun <sunng@about.me>"]
 description = "Handlebars templating middleware for Iron."
 license = "MIT"
