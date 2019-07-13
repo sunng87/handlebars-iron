@@ -43,7 +43,7 @@ impl Template {
 
 /// The handlebars template engine
 pub struct HandlebarsEngine {
-    pub sources: Vec<Box<Source + Send + Sync>>,
+    pub sources: Vec<Box<dyn Source + Send + Sync>>,
     pub registry: RwLock<Box<Handlebars>>,
 }
 
@@ -86,7 +86,7 @@ impl HandlebarsEngine {
     }
 
     /// add a template source
-    pub fn add(&mut self, source: Box<Source + Send + Sync>) {
+    pub fn add(&mut self, source: Box<dyn Source + Send + Sync>) {
         self.sources.push(source);
     }
 
@@ -228,7 +228,7 @@ mod test {
                  _: &Handlebars,
                  _: &Context,
                  _: &mut RenderContext,
-                 _: &mut Output|
+                 _: &mut dyn Output|
                  -> Result<(), RenderError> { Ok(()) },
             ),
         );

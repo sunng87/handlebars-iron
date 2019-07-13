@@ -85,7 +85,8 @@ fn temp(_: &mut Request) -> IronResult<Response> {
     resp.set_mut(Template::with(
         include_str!("templates/some/path/hello.hbs"),
         data,
-    )).set_mut(status::Ok);
+    ))
+    .set_mut(status::Ok);
     Ok(resp)
 }
 
@@ -144,7 +145,7 @@ fn main() {
              _: &Handlebars,
              _: &Context,
              _: &mut RenderContext,
-             _: &mut Output|
+             _: &mut dyn Output|
              -> Result<(), RenderError> { Ok(()) },
         ),
     );
