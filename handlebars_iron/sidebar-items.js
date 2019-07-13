@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["DirectorySource",""],["HandlebarsEngine","The handlebars template engine"],["MemorySource",""],["SourceError",""],["Template",""]],"trait":[["Source",""]]});
