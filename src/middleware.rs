@@ -1,4 +1,3 @@
-use std::error::Error;
 use std::sync::{RwLock, RwLockWriteGuard};
 
 use iron::headers::ContentType;
@@ -95,7 +94,7 @@ impl HandlebarsEngine {
         let mut hbs = self.handlebars_mut();
         hbs.clear_templates();
         for s in self.sources.iter() {
-            try!(s.load(&mut hbs))
+            s.load(&mut hbs)?
         }
         Ok(())
     }
@@ -132,7 +131,7 @@ impl AfterMiddleware for HandlebarsEngine {
                     Ok(resp)
                 }
                 Err(e) => {
-                    info!("{}", e.description());
+                    info!("{}", e);
                     Err(IronError::new(e, status::InternalServerError))
                 }
             },
@@ -141,7 +140,7 @@ impl AfterMiddleware for HandlebarsEngine {
     }
 
     fn catch(&self, req: &mut Request, mut err: IronError) -> IronResult<Response> {
-        err.response = try!(self.after(req, err.response));
+        err.response = self.after(req, err.response)?;
         Err(err)
     }
 }

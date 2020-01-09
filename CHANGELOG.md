@@ -1,5 +1,11 @@
 # Change Log
 
+## [Unreleased] - ReleaseDate
+
+### Fixed
+
+* Deprecation warnings for `try!` and `Error` usage
+
 ## [0.28.0] - 2019-07-13
 
 ### Changed

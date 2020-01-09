@@ -14,11 +14,7 @@ impl fmt::Display for SourceError {
 }
 
 impl Error for SourceError {
-    fn description(&self) -> &str {
-        self.cause.description()
-    }
-
-    fn cause(&self) -> Option<&dyn Error> {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
         self.cause.source()
     }
 }

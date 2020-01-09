@@ -7,7 +7,7 @@ pub struct MemorySource(pub BTreeMap<String, String>);
 impl Source for MemorySource {
     fn load(&self, reg: &mut Handlebars) -> Result<(), SourceError> {
         for (name, tpl) in self.0.iter() {
-            try!(reg.register_template_string(name, tpl.clone()))
+            reg.register_template_string(name, tpl.clone())?;
         }
         Ok(())
     }
