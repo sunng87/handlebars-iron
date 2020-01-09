@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unreleased] - ReleaseDate
+## [0.28.1] - 2020-01-09
 
 ### Fixed
 
