@@ -1,5 +1,11 @@
 # Change Log
 
+## [Unreleased] - ReleaseDate
+
+### Changed
+
+* Updated handlebars to 3.0
+
 ## [0.28.1] - 2020-01-09
 
 ### Fixed

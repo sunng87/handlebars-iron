@@ -43,7 +43,7 @@ impl Template {
 /// The handlebars template engine
 pub struct HandlebarsEngine {
     pub sources: Vec<Box<dyn Source + Send + Sync>>,
-    pub registry: RwLock<Box<Handlebars>>,
+    pub registry: RwLock<Box<Handlebars<'static>>>,
 }
 
 impl typemap::Key for HandlebarsEngine {
@@ -77,7 +77,7 @@ impl HandlebarsEngine {
     }
 
     /// create a handlebars template engine from existed handlebars registry
-    pub fn from(reg: Handlebars) -> HandlebarsEngine {
+    pub fn from(reg: Handlebars<'static>) -> HandlebarsEngine {
         HandlebarsEngine {
             sources: Vec::new(),
             registry: RwLock::new(Box::new(reg)),
@@ -100,7 +100,7 @@ impl HandlebarsEngine {
     }
 
     /// access internal handlebars registry, useful to register custom helpers
-    pub fn handlebars_mut(&self) -> RwLockWriteGuard<Box<Handlebars>> {
+    pub fn handlebars_mut(&self) -> RwLockWriteGuard<Box<Handlebars<'static>>> {
         self.registry.write().unwrap()
     }
 }

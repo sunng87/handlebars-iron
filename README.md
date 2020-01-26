@@ -31,6 +31,8 @@ handlebars-iron | handlebars | iron
 0.25.x | 0.29.x | 0.5.x
 0.26.x | 0.32.x | 0.6.x
 0.27.x | 1.x | 0.6.x
+0.28.x | 2.x | 0.6.x
+0.29.x | 3.x | 0.6.x
 
 ## Usage
 
